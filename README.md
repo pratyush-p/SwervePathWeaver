@@ -8,12 +8,11 @@ For bugs or feature suggestions, make a github issue.
 
 ## Building
 
-Open `CMD`
-Navigate to project folder: `cd pathweaver`
-To run PathWeaver use the command: `./gradlew run`
+Open `CMD` <br />
+Navigate to project folder: `cd pathweaver` <br />
+To run PathWeaver use the command: `./gradlew run` <br />
 
 ## Prats Modification
-### Added swerve functionality (Independent Heading)
 The red line represents the heading of the bot, the cyan line is the tangent for the path.
 
 ### Requirements
