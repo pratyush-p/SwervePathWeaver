@@ -20,6 +20,11 @@ public final class DataFormats {
   public static final DataFormat CONTROL_VECTOR = new DataFormat(APP_PREFIX + "/control-vector");
 
   /**
+   * Data format for dragging headings.
+   */
+  public static final DataFormat HEADING = new DataFormat(APP_PREFIX + "/heading");
+
+  /**
    * Data format for dragging spline.
    */
   public static final DataFormat SPLINE = new DataFormat(APP_PREFIX + "/spline");

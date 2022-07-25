@@ -24,7 +24,6 @@ public final class PathIOUtil {
   private PathIOUtil() {
   }
 
-
   /**
    * Exports path object to csv file.
    *
@@ -38,15 +37,18 @@ public final class PathIOUtil {
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileLocation + path.getPathName()));
 
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-            .withHeader("X", "Y", "Tangent X", "Tangent Y", "Fixed Theta", "Reversed", "Name"))
-    ) {
+            .withHeader("X", "Y", "Tangent X", "Tangent Y", "Heading X", "Heading Y", "Fixed Theta", "Reversed",
+                "Name"))) {
       for (Waypoint wp : path.getWaypoints()) {
         double xPos = wp.getX();
         double yPos = wp.getY();
         double tangentX = wp.getTangentX();
         double tangentY = wp.getTangentY();
+        double headingX = wp.getHeadingX();
+        double headingY = wp.getHeadingY();
         String name = wp.getName();
-        csvPrinter.printRecord(xPos, yPos, tangentX, tangentY, wp.isLockTangent(), wp.isReversed(), name);
+        csvPrinter.printRecord(xPos, yPos, tangentX, tangentY, headingX, headingY, wp.isLockTangent(), wp.isReversed(),
+            name);
       }
       csvPrinter.flush();
     } catch (IOException except) {
@@ -65,24 +67,25 @@ public final class PathIOUtil {
    * @return Path object saved in Path file
    */
   public static Path importPath(String fileLocation, String fileName) {
-    try(Reader reader = Files.newBufferedReader(java.nio.file.Path.of(fileLocation, fileName));
+    try (Reader reader = Files.newBufferedReader(java.nio.file.Path.of(fileLocation, fileName));
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
-                .withFirstRecordAsHeader()
-                .withIgnoreHeaderCase()
-                .withTrim())) {
+            .withFirstRecordAsHeader()
+            .withIgnoreHeaderCase()
+            .withTrim())) {
       ArrayList<Waypoint> waypoints = new ArrayList<>();
       for (CSVRecord csvRecord : csvParser) {
         Point2D position = new Point2D(
-                Double.parseDouble(csvRecord.get("X")),
-                Double.parseDouble(csvRecord.get("Y"))
-        );
+            Double.parseDouble(csvRecord.get("X")),
+            Double.parseDouble(csvRecord.get("Y")));
         Point2D tangent = new Point2D(
-                Double.parseDouble(csvRecord.get("Tangent X")),
-                Double.parseDouble(csvRecord.get("Tangent Y"))
-        );
+            Double.parseDouble(csvRecord.get("Tangent X")),
+            Double.parseDouble(csvRecord.get("Tangent Y")));
+        Point2D heading = new Point2D(
+            Double.parseDouble(csvRecord.get("Heading X")),
+            Double.parseDouble(csvRecord.get("Heading Y")));
         boolean locked = Boolean.parseBoolean(csvRecord.get("Fixed Theta"));
         boolean reversed = Boolean.parseBoolean(csvRecord.get("Reversed"));
-        Waypoint point = new Waypoint(position, tangent, locked, reversed);
+        Waypoint point = new Waypoint(position, tangent, heading, locked, reversed);
         if (csvRecord.isMapped("Name")) {
           String name = csvRecord.get("Name");
           point.setName(name);

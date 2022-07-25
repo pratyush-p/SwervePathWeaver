@@ -24,18 +24,23 @@ import java.util.Objects;
 /**
  *
  * Note: This abstract class places drag and drop constraints on implementors.
- * Implementors of this class should see {@link edu.wpi.first.pathweaver.path.wpilib.WpilibPath} for
+ * Implementors of this class should see
+ * {@link edu.wpi.first.pathweaver.path.wpilib.WpilibPath} for
  * an example of setting up drag and drop for the path and waypoints.
  * <p>
  * Drag and drop is fundamental to Pathweaver, and implmentors of this interface
- * must abide by the following policies. Between {@link Spline} and {@link Path}, the
+ * must abide by the following policies. Between {@link Spline} and
+ * {@link Path}, the
  * following variables must get set in {@link CurrentSelections}:
  *
  * <ul>
- * <li>{@link CurrentSelections#curPathProperty()}: To be set whenever a Path is clicked or dragged,
+ * <li>{@link CurrentSelections#curPathProperty()}: To be set whenever a Path is
+ * clicked or dragged,
  * see {@link edu.wpi.first.pathweaver.path.wpilib.WpilibPath} for an example.
- * <li>{@link CurrentSelections#curWaypointProperty()}: To be set whenever a Waypoint is clicked or dragged.
- * <li>{@link CurrentSelections#curSegmentStartProperty()} and {@link CurrentSelections#curSegmentEndProperty()}: To be set
+ * <li>{@link CurrentSelections#curWaypointProperty()}: To be set whenever a
+ * Waypoint is clicked or dragged.
+ * <li>{@link CurrentSelections#curSegmentStartProperty()} and
+ * {@link CurrentSelections#curSegmentEndProperty()}: To be set
  * whenever a SplineSegment (or functional equivalent) is clicked on or dragged.
  * </ul>
  *
@@ -59,8 +64,9 @@ public abstract class Path {
 
     /**
      * Creates a Path from a {@link SplineFactory} and the name of the path.
+     * 
      * @param splineFactory the SplineFactory
-     * @param pathName the name of the path
+     * @param pathName      the name of the path
      */
     protected Path(SplineFactory splineFactory, String pathName) {
         this.spline = splineFactory.makeSpline(waypoints, this);
@@ -75,6 +81,7 @@ public abstract class Path {
      * Duplicates the current path, returning a new Path with no shared state.
      * Implementors are highly encouraged to return Self with this method in order
      * to maintain desired behavior across refreshes.
+     * 
      * @param pathName the new name of the path
      * @return a duplicate of this path with a new name
      */
@@ -136,7 +143,8 @@ public abstract class Path {
     public Waypoint addWaypoint(Point2D coordinates, Waypoint start, Waypoint end) {
         for (int i = 1; i < waypoints.size(); i++) {
             if (waypoints.get(i - 1).equals(start) && waypoints.get(i).equals(end)) {
-                Waypoint toAdd = new Waypoint(coordinates, new Point2D(0, 0), false, start.isReversed());
+                Waypoint toAdd = new Waypoint(coordinates, new Point2D(0, 0),
+                        new Point2D(0, 0), false, start.isReversed());
                 waypoints.add(i, toAdd);
 
                 updateTangent(toAdd);
@@ -147,8 +155,11 @@ public abstract class Path {
     }
 
     /**
-     * Recalculate the tangents for the waypoint provided, as well as those before and after it.
-     * This implementation skips over non-existent waypoints, calling the {@link #updateTangent(Waypoint)} on the others.
+     * Recalculate the tangents for the waypoint provided, as well as those before
+     * and after it.
+     * This implementation skips over non-existent waypoints, calling the
+     * {@link #updateTangent(Waypoint)} on the others.
+     * 
      * @param wp the waypoint to recalculate tangents for
      */
     public void recalculateTangents(Waypoint wp) {
@@ -167,13 +178,32 @@ public abstract class Path {
         }
     }
 
+    public void recalculateHeadings(Waypoint wp) {
+        int curWpIndex = getWaypoints().indexOf(wp);
+
+        if (curWpIndex - 1 > 0) {
+            Waypoint previous = getWaypoints().get(curWpIndex - 1);
+            updateHeading(previous);
+        }
+
+        updateHeading(wp);
+
+        if (curWpIndex + 1 < waypoints.size()) {
+            Waypoint next = getWaypoints().get(curWpIndex + 1);
+            updateHeading(next);
+        }
+    }
+
     /**
-     * Forces recomputation of optimal tangent line (representing heading). Implementors are
+     * Forces recomputation of optimal tangent line (representing heading).
+     * Implementors are
      * free to make this function a no-op.
      *
      * @param wp the waypoint to update the tangent line for.
      */
     protected abstract void updateTangent(Waypoint wp);
+
+    protected abstract void updateHeading(Waypoint wp);
 
     public void enableSubchildSelector(int i) {
         this.subchildIdx = i;
@@ -184,8 +214,11 @@ public abstract class Path {
     }
 
     /**
-     * This function toggles the selection status of a waypoint. This implementation calls {@link #deselectWaypoint(Waypoint)}
-     * if the waypoint is currently selected and {@link #selectWaypoint(Waypoint)} otherwise.
+     * This function toggles the selection status of a waypoint. This implementation
+     * calls {@link #deselectWaypoint(Waypoint)}
+     * if the waypoint is currently selected and {@link #selectWaypoint(Waypoint)}
+     * otherwise.
+     * 
      * @param waypoint the waypoint to toggle
      */
     public void toggleWaypoint(Waypoint waypoint) {
@@ -197,8 +230,10 @@ public abstract class Path {
     }
 
     /**
-     * Selects the given waypoint by calling the appropriate methods in {@link CurrentSelections}, making care to update the waypoint,
+     * Selects the given waypoint by calling the appropriate methods in
+     * {@link CurrentSelections}, making care to update the waypoint,
      * as well as the current path.
+     * 
      * @param waypoint the waypoint to select
      */
     public void selectWaypoint(Waypoint waypoint) {
@@ -214,8 +249,11 @@ public abstract class Path {
     }
 
     /**
-     * Selects the given waypoint by calling the appropriate methods in {@link CurrentSelections}, making care to update the waypoint.
-     * This implementation does not currently null out {@link CurrentSelections#curPathProperty()} due to a NPE.
+     * Selects the given waypoint by calling the appropriate methods in
+     * {@link CurrentSelections}, making care to update the waypoint.
+     * This implementation does not currently null out
+     * {@link CurrentSelections#curPathProperty()} due to a NPE.
+     * 
      * @param waypoint the waypoint to deselect
      */
     public void deselectWaypoint(Waypoint waypoint) {
@@ -228,7 +266,9 @@ public abstract class Path {
     }
 
     /**
-     * Removes a Waypoint from this path. This implementation will not remove the last 2 points.
+     * Removes a Waypoint from this path. This implementation will not remove the
+     * last 2 points.
+     * 
      * @param waypoint the waypoint to remove
      * @return whether the remove succeeded or not
      */
@@ -263,9 +303,11 @@ public abstract class Path {
         for (Waypoint wp : waypoints) {
             Point2D reflectedPos = reflectPoint(getStart(), wp, horizontal, false);
             Point2D reflectedTangent = reflectPoint(getStart(), wp, horizontal, true);
+            Point2D reflectedHeading = reflectPoint(getStart(), wp, horizontal, false);
             wp.setX(reflectedPos.getX());
             wp.setY(reflectedPos.getY());
             wp.setTangent(reflectedTangent);
+            wp.setHeading(reflectedHeading);
         }
     }
 

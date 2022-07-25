@@ -1,6 +1,8 @@
 package edu.wpi.first.pathweaver.spline.wpilib;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.spline.PoseWithCurvature;
 import edu.wpi.first.math.spline.QuinticHermiteSpline;
@@ -23,6 +25,7 @@ import javafx.scene.Node;
 import javax.measure.UnitConverter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -68,17 +71,16 @@ public class WpilibSpline extends AbstractSpline {
             QuinticHermiteSpline quintic;
 
             if (segStart.isReversed()) {
-                quintic = getQuinticSplinesFromWaypoints(new Waypoint[]{segEnd, segStart})[0];
+                quintic = getQuinticSplinesFromWaypoints(new Waypoint[] { segEnd, segStart })[0];
+            } else {
+                quintic = getQuinticSplinesFromWaypoints(new Waypoint[] { segStart, segEnd })[0];
             }
-            else {
-                quintic = getQuinticSplinesFromWaypoints(new Waypoint[]{segStart, segEnd})[0];
-            }
-            SplineSegment seg = new SplineSegment(waypoints.get(i-1), waypoints.get(i), path);
+            SplineSegment seg = new SplineSegment(waypoints.get(i - 1), waypoints.get(i), path);
 
             for (int sample = 0; sample <= 40; sample++) {
                 PoseWithCurvature pose = quintic.getPoint(sample / 40.0);
                 seg.getLine().getPoints().add(pose.poseMeters.getTranslation().getX());
-                //Convert from WPILib to JavaFX coords
+                // Convert from WPILib to JavaFX coords
                 seg.getLine().getPoints().add(-pose.poseMeters.getTranslation().getY());
             }
 
@@ -119,7 +121,8 @@ public class WpilibSpline extends AbstractSpline {
             var maxAcceleration = values.getMaxAcceleration();
             var trackWidth = values.getTrackWidth();
 
-            // If the export type is different (i.e. meters), then we have to convert it. Otherwise we are good.
+            // If the export type is different (i.e. meters), then we have to convert it.
+            // Otherwise we are good.
             if (prefs.getValues().getExportUnit() == ProjectPreferences.ExportUnit.METER) {
                 UnitConverter converter = lengthUnit.getConverterTo(PathUnits.METER);
                 height = converter.convert(height);
@@ -129,17 +132,17 @@ public class WpilibSpline extends AbstractSpline {
             }
 
             TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration)
-                .setKinematics(new DifferentialDriveKinematics(trackWidth)).setReversed(waypoints.get(0).isReversed());
+                    .setKinematics(new DifferentialDriveKinematics(trackWidth))
+                    .setReversed(waypoints.get(0).isReversed());
             Trajectory traj = trajectoryFromWaypoints(waypoints, config);
 
             for (int i = 0; i < traj.getStates().size(); ++i) {
                 var st = traj.getStates().get(i);
                 traj.getStates().set(i, new Trajectory.State(
-                    st.timeSeconds, st.velocityMetersPerSecond, st.accelerationMetersPerSecondSq,
-                    new Pose2d(st.poseMeters.getX(), st.poseMeters.getY() + height,
-                        st.poseMeters.getRotation()),
-                    st.curvatureRadPerMeter
-                ));
+                        st.timeSeconds, st.velocityMetersPerSecond, st.accelerationMetersPerSecondSq,
+                        new Pose2d(st.poseMeters.getX(), st.poseMeters.getY() + height,
+                                st.poseMeters.getRotation()),
+                        st.curvatureRadPerMeter));
             }
 
             TrajectoryUtil.toPathweaverJson(traj, path.resolveSibling(path.getFileName() + ".wpilib.json"));
@@ -157,14 +160,10 @@ public class WpilibSpline extends AbstractSpline {
             var p0 = waypoints[i];
             var p1 = waypoints[i + 1];
 
-            double[] xInitialVector =
-                    {p0.getX(), p0.getTangentX(), 0.0};
-            double[] xFinalVector =
-                    {p1.getX(), p1.getTangentX(), 0.0};
-            double[] yInitialVector =
-                    {p0.getY(), p0.getTangentY(), 0.0};
-            double[] yFinalVector =
-                    {p1.getY(), p1.getTangentY(), 0.0};
+            double[] xInitialVector = { p0.getX(), p0.getTangentX(), 0.0 };
+            double[] xFinalVector = { p1.getX(), p1.getTangentX(), 0.0 };
+            double[] yInitialVector = { p0.getY(), p0.getTangentY(), 0.0 };
+            double[] yFinalVector = { p1.getY(), p1.getTangentY(), 0.0 };
 
             splines[i] = new QuinticHermiteSpline(xInitialVector, xFinalVector,
                     yInitialVector, yFinalVector);
@@ -177,20 +176,41 @@ public class WpilibSpline extends AbstractSpline {
         ProjectPreferences.Values prefs = ProjectPreferences.getInstance().getValues();
 
         var list = new TrajectoryGenerator.ControlVectorList();
-        for(Waypoint wp: waypoints) {
-            if(prefs.getExportUnit() == ProjectPreferences.ExportUnit.METER) {
+        List<Pose2d> poseList = new ArrayList<Pose2d>();
+        for (Waypoint wp : waypoints) {
+            if (prefs.getExportUnit() == ProjectPreferences.ExportUnit.METER) {
                 UnitConverter converter = prefs.getLengthUnit().getConverterTo(PathUnits.METER);
                 list.add(new Spline.ControlVector(
-                        new double[] {converter.convert(wp.getX()), converter.convert(wp.getTangentX()), 0},
-                        new double[] {converter.convert(wp.getY()), converter.convert(wp.getTangentY()), 0}));
+                        new double[] { converter.convert(wp.getX()), converter.convert(wp.getTangentX()), 0 },
+                        new double[] { converter.convert(wp.getY()), converter.convert(wp.getTangentY()), 0 }));
             } else {
                 list.add(new Spline.ControlVector(
-                        new double[] {wp.getX(), wp.getTangentX(), 0},
-                        new double[] {wp.getY(), wp.getTangentY(), 0}));
+                        new double[] { wp.getX(), wp.getTangentX(), 0 },
+                        new double[] { wp.getY(), wp.getTangentY(), 0 }));
             }
-
         }
 
-        return TrajectoryGenerator.generateTrajectory(list, config);
+        for (Waypoint wp : waypoints) {
+            if (prefs.getExportUnit() == ProjectPreferences.ExportUnit.METER) {
+                UnitConverter converter = prefs.getLengthUnit().getConverterTo(PathUnits.METER);
+                poseList.add(
+                        new Pose2d(
+                                converter.convert(wp.getX()),
+                                converter.convert(wp.getY()),
+                                new Rotation2d(
+                                        converter.convert(wp.getHeadingX()),
+                                        converter.convert(wp.getHeadingY()))));
+            } else {
+                poseList.add(
+                        new Pose2d(
+                                wp.getX(),
+                                wp.getY(),
+                                new Rotation2d(
+                                        wp.getHeadingX(),
+                                        wp.getHeadingY())));
+            }
+        }
+        // return TrajectoryGenerator.
+        return TrajectoryGenerator.generateTrajectory(poseList, config);
     }
 }

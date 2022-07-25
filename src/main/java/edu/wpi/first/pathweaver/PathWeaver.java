@@ -20,7 +20,7 @@ public class PathWeaver extends Application {
     WPIUtilJNI.Helper.setExtractOnStaticLoad(false);
     WPIMathJNI.Helper.setExtractOnStaticLoad(false);
     CombinedRuntimeLoader.loadLibraries(PathWeaver.class, "wpiutiljni",
-                                        "wpimathjni");
+        "wpimathjni");
 
     ExtensionManager.getInstance().refresh();
     Pane root = FXMLLoader.load(getClass().getResource("welcomeScreen.fxml"));
@@ -39,6 +39,7 @@ public class PathWeaver extends Application {
 
   /**
    * The version of this build of PathWeaver.
+   * 
    * @return String representing the version of PathWeaver.
    */
   public static String getVersion() {

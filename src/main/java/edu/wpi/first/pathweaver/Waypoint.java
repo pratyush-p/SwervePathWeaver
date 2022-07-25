@@ -30,26 +30,32 @@ public class Waypoint {
 	private final DoubleProperty y = new SimpleDoubleProperty();
 	private final DoubleProperty tangentX = new SimpleDoubleProperty();
 	private final DoubleProperty tangentY = new SimpleDoubleProperty();
+	private final DoubleProperty headingX = new SimpleDoubleProperty();
+	private final DoubleProperty headingY = new SimpleDoubleProperty();
 	private final BooleanProperty lockTangent = new SimpleBooleanProperty();
+	private final BooleanProperty lockHeading = new SimpleBooleanProperty();
 	private final BooleanProperty reversed = new SimpleBooleanProperty();
 	private final StringProperty name = new SimpleStringProperty("");
 
 	private final Line tangentLine;
+	private final Line headingLine;
 	private final Polygon icon;
 
 	/**
 	 * Creates Waypoint object containing javafx circle.
 	 *
 	 * @param position
-	 *            x and y coordinates in {@link Waypoint} convention
+	 *                      x and y coordinates in {@link Waypoint} convention
 	 * @param tangentVector
-	 *            tangent vector in user set units
+	 *                      tangent vector in user set units
 	 * @param fixedAngle
-	 *            If the angle the of the waypoint should be fixed. Used for first
-	 *            and last waypoint
+	 *                      If the angle the of the waypoint should be fixed. Used
+	 *                      for first
+	 *                      and last waypoint
 	 */
-	public Waypoint(Point2D position, Point2D tangentVector, boolean fixedAngle, boolean reverse) {
+	public Waypoint(Point2D position, Point2D tangentVector, Point2D headingVector, boolean fixedAngle, boolean reverse) {
 		lockTangent.set(fixedAngle);
+		lockHeading.set(true);
 		reversed.set(reverse);
 		setCoords(position);
 
@@ -59,13 +65,25 @@ public class Waypoint {
 		tangentLine = new Line();
 		tangentLine.getStyleClass().add("tangent");
 		tangentLine.startXProperty().bind(x);
-		//Convert from WPILib to JavaFX coords
+		// Convert from WPILib to JavaFX coords
 		tangentLine.startYProperty().bind(y.negate());
 		setTangent(tangentVector);
 		tangentLine.endXProperty().bind(Bindings.createObjectBinding(() -> getTangentX() + getX(), tangentX, x));
 
-		//Convert from WPILib to JavaFX coords
+		// Convert from WPILib to JavaFX coords
 		tangentLine.endYProperty().bind(Bindings.createObjectBinding(() -> -getTangentY() + -getY(), tangentY, y));
+
+		headingLine = new Line();
+		headingLine.getStyleClass().add("heading");
+		headingLine.startXProperty().bind(x);
+		// Convert from WPILib to JavaFX coords
+		headingLine.startYProperty().bind(y.negate());
+		setHeading(headingVector);
+		headingLine.endXProperty().bind(Bindings.createObjectBinding(() -> getHeadingX() + getX(), headingX, x));
+
+		// Convert from WPILib to JavaFX coords
+		headingLine.endYProperty().bind(Bindings.createObjectBinding(() -> -getHeadingY() + -getY(), headingY, y));
+
 	}
 
 	public void enableSubchildSelector(int i) {
@@ -78,13 +96,13 @@ public class Waypoint {
 		icon.setLayoutY(-(icon.getLayoutBounds().getMaxY() + icon.getLayoutBounds().getMinY()) / 2);
 
 		icon.translateXProperty().bind(x);
-		//Convert from WPILib to JavaFX coords
+		// Convert from WPILib to JavaFX coords
 		icon.translateYProperty().bind(y.negate());
 		FxUtils.applySubchildClasses(this.icon);
 		this.icon.rotateProperty()
 				.bind(Bindings.createObjectBinding(
-						() -> getTangent() == null ? 0.0 : Math.toDegrees(Math.atan2(-getTangentY(), getTangentX())),
-						tangentX, tangentY));
+						() -> getHeading() == null ? 0.0 : Math.toDegrees(Math.atan2(-getHeadingY(), getHeadingX())),
+						headingX, headingY));
 		icon.getStyleClass().add("waypoint");
 	}
 
@@ -92,7 +110,7 @@ public class Waypoint {
 	 * Convenience function for math purposes.
 	 *
 	 * @param other
-	 *            The other Waypoint.
+	 *              The other Waypoint.
 	 *
 	 * @return The coordinates of this Waypoint relative to the coordinates of
 	 *         another Waypoint.
@@ -111,6 +129,10 @@ public class Waypoint {
 
 	public void setLockTangent(boolean lockTangent) {
 		this.lockTangent.set(lockTangent);
+	}
+
+	public boolean isLockHeading() {
+		return lockHeading.get();
 	}
 
 	public boolean isReversed() {
@@ -152,6 +174,35 @@ public class Waypoint {
 
 	public void setTangentY(double tangentY) {
 		this.tangentY.set(tangentY);
+	}
+
+	public Line getHeadingLine() {
+		return headingLine;
+	}
+
+	public Point2D getHeading() {
+		return new Point2D(headingX.get(), headingY.get());
+	}
+
+	public void setHeading(Point2D heading) {
+		this.headingX.set(heading.getX());
+		this.headingY.set(heading.getY());
+	}
+
+	public double getHeadingX() {
+		return headingX.get();
+	}
+
+	public double getHeadingY() {
+		return headingY.get();
+	}
+
+	public void setHeadingX(double headingX) {
+		this.headingX.set(headingX);
+	}
+
+	public void setHeadingY(double headingY) {
+		this.headingY.set(headingY);
 	}
 
 	public Polygon getIcon() {
@@ -211,13 +262,21 @@ public class Waypoint {
 		return tangentY;
 	}
 
+	public DoubleProperty headingXProperty() {
+		return headingX;
+	}
+
+	public DoubleProperty headingYProperty() {
+		return headingY;
+	}
+
 	/**
 	 * Converts the unit system of a this Waypoint.
 	 *
 	 * @param from
-	 *            Unit to convert from.
+	 *             Unit to convert from.
 	 * @param to
-	 *            Unit to convert to.
+	 *             Unit to convert to.
 	 */
 	public void convertUnit(Unit<Length> from, Unit<Length> to) {
 		var converter = from.getConverterTo(to);
@@ -225,15 +284,18 @@ public class Waypoint {
 		y.set(converter.convert(y.get()));
 		tangentX.set(converter.convert(tangentX.get()));
 		tangentY.set(converter.convert(tangentY.get()));
+		headingX.set(converter.convert(headingX.get()));
+		headingY.set(converter.convert(headingY.get()));
 	}
 
 	public Waypoint copy() {
-		return new Waypoint(getCoords(), getTangent(), isLockTangent(), isReversed());
+		return new Waypoint(getCoords(), getTangent(), getHeading(), isLockTangent(), isReversed());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s (%f,%f), (%f,%f), %b %b", getName(), getX(), getY(), getTangentX(), getTangentY(), isLockTangent(), isReversed());
+		return String.format("%s (%f,%f), (%f,%f), (%f,%f), %b %b", getName(), getX(), getY(), getTangentX(), getTangentY(),
+				getHeadingX(), getHeadingY(), isLockTangent(), isReversed());
 	}
 
 	@Override

@@ -12,8 +12,10 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 
 /**
- * This class handles the drag and drop functionality for PathWeaver. Implementors should be sure that
- * the appropriate property in {@link CurrentSelections} is set correctly for this functionality to work properly.
+ * This class handles the drag and drop functionality for PathWeaver.
+ * Implementors should be sure that
+ * the appropriate property in {@link CurrentSelections} is set correctly for
+ * this functionality to work properly.
  */
 public class DragHandler {
   private final FieldDisplayController controller;
@@ -23,7 +25,8 @@ public class DragHandler {
   private boolean splineDragStarted = false;
 
   /**
-   * Creates the DragHandler, which sets up and manages all drag interactions for the given PathDisplayController.
+   * Creates the DragHandler, which sets up and manages all drag interactions for
+   * the given PathDisplayController.
    *
    * @param parent   The PathDisplayController that this DragHandler manages
    * @param drawPane The PathDisplayController's Pane.
@@ -52,6 +55,8 @@ public class DragHandler {
       }
     } else if (dragboard.hasContent(DataFormats.CONTROL_VECTOR)) {
       handleVectorDrag(event, path, wp);
+    } else if (dragboard.hasContent(DataFormats.HEADING)) {
+      handleHeadingDrag(event, path, wp);
     } else if (dragboard.hasContent(DataFormats.SPLINE)) {
       handleSplineDrag(event, path, wp);
     }
@@ -81,10 +86,17 @@ public class DragHandler {
   }
 
   private void handleVectorDrag(DragEvent event, Path path, Waypoint wp) {
-    //Y should increase as one drags the vector up on the screen
+    // Y should increase as one drags the vector up on the screen
     Point2D pt = new Point2D(event.getX(), -event.getY());
     wp.setTangent(pt.subtract(wp.getX(), wp.getY()));
     wp.lockTangentProperty().set(true);
+    path.update();
+  }
+
+  private void handleHeadingDrag(DragEvent event, Path path, Waypoint wp) {
+    // Y should increase as one drags the vector up on the screen
+    Point2D pt = new Point2D(event.getX(), -event.getY());
+    wp.setHeading(pt.subtract(wp.getX(), wp.getY()));
     path.update();
   }
 
@@ -92,7 +104,8 @@ public class DragHandler {
     if (splineDragStarted) {
       handleWaypointDrag(event, path, wp);
     } else {
-      Waypoint cur = path.addWaypoint(new Point2D(event.getX(), event.getY()), CurrentSelections.getCurSplineStart(), CurrentSelections.getCurSplineEnd());
+      Waypoint cur = path.addWaypoint(new Point2D(event.getX(), event.getY()), CurrentSelections.getCurSplineStart(),
+          CurrentSelections.getCurSplineEnd());
       path.selectWaypoint(cur);
       CurrentSelections.setCurPath(path);
       CurrentSelections.setCurSplineStart(null);

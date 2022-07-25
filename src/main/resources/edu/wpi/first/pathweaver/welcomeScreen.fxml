@@ -40,7 +40,7 @@
                </children>
             </HBox>
             <Button fx:id="help" mnemonicParsing="false" onAction="#help" text="Help" />
-            <Button fx:id="darkToggle" mnemonicParsing="false" onAction="#darkToggle" text="Toggle Dark Mode" />
+            <Button fx:id="darkToggle" mnemonicParsing="false" onAction="#darkToggle" text="Toggle DarkMode" />
          </children>
          <BorderPane.margin>
             <Insets bottom="20.0" left="10.0" right="10.0" top="10.0" />
