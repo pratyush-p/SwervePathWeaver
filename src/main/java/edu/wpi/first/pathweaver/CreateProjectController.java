@@ -193,7 +193,7 @@ public class CreateProjectController {
 				control -> control.setTooltip(new Tooltip("The distance between the left and right edges of the bumper.")));
 		bumperWidthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
 		bumperLengthControls.forEach(
-				control -> control.setTooltip(new Tooltip("The distance between the left and right edges of the bumper.")));
+				control -> control.setTooltip(new Tooltip("The distance between the front and back edges of the bumper.")));
 		bumperLengthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
 		// Show longer text for an extended period of time
 		Stream.of(directoryControls, outputControls).flatMap(List::stream)

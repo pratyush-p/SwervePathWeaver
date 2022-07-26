@@ -243,7 +243,7 @@ public abstract class Path {
         }
         waypoint.getRobot().pseudoClassStateChanged(SELECTED_CLASS, true);
         waypoint.getRobot().requestFocus();
-        // waypoint.getRobot().toFront();
+        // waypoint.getRobot().toBack();
         waypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, true);
         waypoint.getIcon().requestFocus();
         waypoint.getIcon().toFront();
@@ -258,7 +258,7 @@ public abstract class Path {
         }
         waypoint.getRobot().pseudoClassStateChanged(SELECTED_CLASS, true);
         waypoint.getRobot().requestFocus();
-        // waypoint.getRobot().toFront();
+        // waypoint.getRobot().toBack();
         waypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, true);
         waypoint.getIcon().requestFocus();
         waypoint.getIcon().toFront();

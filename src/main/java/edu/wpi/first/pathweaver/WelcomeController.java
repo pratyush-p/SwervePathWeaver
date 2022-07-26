@@ -23,9 +23,12 @@ import javafx.stage.DirectoryChooser;
 public class WelcomeController {
   public static boolean dark;
 
-  @FXML private BorderPane borderPane;
-  @FXML private ListView<String> projects;
-  @FXML private Label version;
+  @FXML
+  private BorderPane borderPane;
+  @FXML
+  private ListView<String> projects;
+  @FXML
+  private Label version;
 
   @FXML
   private void initialize() {
@@ -40,6 +43,7 @@ public class WelcomeController {
         loadProject(folder);
       }
     });
+
   }
 
   @FXML
@@ -87,8 +91,7 @@ public class WelcomeController {
   @FXML
   private void importProject() {
     DirectoryChooser chooser = new DirectoryChooser();
-    File selectedDirectory =
-        chooser.showDialog(borderPane.getScene().getWindow());
+    File selectedDirectory = chooser.showDialog(borderPane.getScene().getWindow());
     if (selectedDirectory != null) {
       ProgramPreferences.getInstance().addProject(selectedDirectory.getPath());
       loadProject(selectedDirectory.getPath());
@@ -98,7 +101,7 @@ public class WelcomeController {
   @FXML
   private void help() throws URISyntaxException, IOException {
     Desktop.getDesktop().browse(new URI(
-        "https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/pathweaver/index.html"));
+        "https://rr.noordstar.me/-steel-talons-675018e4"));
   }
 
   @FXML

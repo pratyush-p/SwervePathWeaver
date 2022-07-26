@@ -19,6 +19,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
@@ -27,23 +28,31 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-
 //With the creation of a project many of these functions should be moved out of here
 //Anything to do with the directory should be part of a Project object
 
-@SuppressWarnings({"PMD.UnusedPrivateMethod","PMD.AvoidFieldNameMatchingMethodName",
-  "PMD.GodClass", "PMD.TooManyFields"})
+@SuppressWarnings({ "PMD.UnusedPrivateMethod", "PMD.AvoidFieldNameMatchingMethodName",
+    "PMD.GodClass", "PMD.TooManyFields" })
 public class MainController {
   private static final Logger LOGGER = Logger.getLogger(MainController.class.getName());
 
-  @FXML private TreeView<String> autons;
-  @FXML private TreeView<String> paths;
+  @FXML
+  private TreeView<String> autons;
+  @FXML
+  private TreeView<String> paths;
 
-  @FXML private Pane fieldDisplay;
-  @FXML private FieldDisplayController fieldDisplayController;
+  @FXML
+  private Pane fieldDisplay;
+  @FXML
+  private FieldDisplayController fieldDisplayController;
 
-  @FXML private GridPane editWaypoint;
-  @FXML private EditWaypointController editWaypointController;
+  @FXML
+  private GridPane editWaypoint;
+  @FXML
+  private EditWaypointController editWaypointController;
+
+  @FXML
+  private TitledPane yee;
 
   private String directory = ProjectPreferences.getInstance().getDirectory();
   private final String pathDirectory = directory + "/Paths/";
@@ -54,18 +63,25 @@ public class MainController {
 
   private TreeItem<String> selected = null;
 
-  @FXML private Button duplicate;
-  @FXML private Button flipHorizontal;
-  @FXML private Button flipVertical;
+  @FXML
+  private Button duplicate;
+  @FXML
+  private Button flipHorizontal;
+  @FXML
+  private Button flipVertical;
+
+  private Field field;
 
   @FXML
   private void initialize() {
+    field = ProjectPreferences.getInstance().getField();
     setupDrag();
 
     setupTreeView(autons, autonRoot, FxUtils.menuItem("New Autonomous...", event -> createAuton()));
     setupTreeView(paths, pathRoot, FxUtils.menuItem("New Path...", event -> createPath()));
 
-    // Copying files from the old directory name to the new one to maintain backwards compatibility
+    // Copying files from the old directory name to the new one to maintain
+    // backwards compatibility
     try {
       MainIOUtil.copyGroupFiles(autonDirectory, groupDirectory);
     } catch (IOException e) {
@@ -97,7 +113,6 @@ public class MainController {
     treeRoot.setExpanded(true);
     treeView.setShowRoot(false); // Don't show the roots "Paths" and "Autons" - cleaner appearance
   }
-
 
   private void setupEditable() {
     autons.setOnEditStart(event -> {
@@ -140,7 +155,6 @@ public class MainController {
       }
     }
   }
-
 
   private void loadAllAutons() {
     for (TreeItem<String> item : autonRoot.getChildren()) {
@@ -230,7 +244,6 @@ public class MainController {
     MainIOUtil.saveAuton(autonDirectory, auton.getValue(), auton);
   }
 
-
   private TreeItem<String> getRoot(TreeItem<String> item) {
     TreeItem<String> root = item;
     while (root.getParent() != null) {
@@ -239,47 +252,44 @@ public class MainController {
     return root;
   }
 
-
   private void setupClickablePaths() {
-    ChangeListener<TreeItem<String>> selectionListener =
-        new ChangeListener<>() {
-          @Override
-          public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
-                              TreeItem<String> newValue) {
-            if (!SaveManager.getInstance().promptSaveAll()) {
-              paths.getSelectionModel().selectedItemProperty().removeListener(this);
-              paths.getSelectionModel().select(oldValue);
-              paths.getSelectionModel().selectedItemProperty().addListener(this);
-              return;
-            }
-            selected = newValue;
-            if (newValue != pathRoot && newValue != null) {
-              fieldDisplayController.removeAllPath();
-              fieldDisplayController.addPath(pathDirectory, newValue);
-              CurrentSelections.getCurPath().selectWaypoint(CurrentSelections.getCurPath().getStart());
-            }
-          }
-        };
+    ChangeListener<TreeItem<String>> selectionListener = new ChangeListener<>() {
+      @Override
+      public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
+          TreeItem<String> newValue) {
+        if (!SaveManager.getInstance().promptSaveAll()) {
+          paths.getSelectionModel().selectedItemProperty().removeListener(this);
+          paths.getSelectionModel().select(oldValue);
+          paths.getSelectionModel().selectedItemProperty().addListener(this);
+          return;
+        }
+        selected = newValue;
+        if (newValue != pathRoot && newValue != null) {
+          fieldDisplayController.removeAllPath();
+          fieldDisplayController.addPath(pathDirectory, newValue);
+          CurrentSelections.getCurPath().selectWaypoint(CurrentSelections.getCurPath().getStart());
+        }
+      }
+    };
     paths.getSelectionModel().selectedItemProperty().addListener(selectionListener);
   }
-
 
   private void setupClickableAutons() {
     ChangeListener<TreeItem<String>> selectionListener = new ChangeListener<>() {
       @Override
       public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
-                          TreeItem<String> newValue) {
+          TreeItem<String> newValue) {
         if (newValue == null) {
           return;
         }
         selected = newValue;
         fieldDisplayController.removeAllPath();
         if (newValue != autonRoot) {
-          if (newValue.getParent() == autonRoot) { //is an auton with children
+          if (newValue.getParent() == autonRoot) { // is an auton with children
             for (TreeItem<String> it : selected.getChildren()) {
               fieldDisplayController.addPath(pathDirectory, it).enableSubchildSelector(FxUtils.getItemIndex(it));
             }
-          } else { //has no children so try to display path
+          } else { // has no children so try to display path
             Path path = fieldDisplayController.addPath(pathDirectory, newValue);
             if (FxUtils.isSubChild(autons, newValue)) {
               path.enableSubchildSelector(FxUtils.getItemIndex(newValue));
@@ -299,13 +309,12 @@ public class MainController {
     return MainIOUtil.isValidRename(autonDirectory, oldName, newName);
   }
 
-
   private void setupDrag() {
     paths.setCellFactory(param -> new PathCell(false, this::validPathName));
     autons.setCellFactory(param -> new PathCell(true, this::validAutonName));
 
     autons.setOnDragDropped(event -> {
-      //simpler than communicating which was updated from the cells
+      // simpler than communicating which was updated from the cells
       saveAllAutons();
       loadAllAutons();
     });
@@ -364,7 +373,7 @@ public class MainController {
 
       java.nio.file.Path pathNameFile = output.resolve(path.getPathNameNoExtension());
 
-      if(!path.getSpline().writeToFile(pathNameFile)) {
+      if (!path.getSpline().writeToFile(pathNameFile)) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         FxUtils.applyDarkMode(alert);
         alert.setTitle("Path export failure!");
@@ -397,4 +406,3 @@ public class MainController {
     this.directory = directory;
   }
 }
-

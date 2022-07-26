@@ -11,6 +11,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
 
 import javax.measure.Unit;
@@ -44,6 +45,8 @@ public class Waypoint {
 	private final Polygon icon;
 	private final Rectangle robot;
 
+	private Field field;
+
 	/**
 	 * Creates Waypoint object containing javafx circle.
 	 *
@@ -62,7 +65,10 @@ public class Waypoint {
 		reversed.set(reverse);
 		setCoords(position);
 
-		robot = new Rectangle(SIZE, SIZE);
+		field = ProjectPreferences.getInstance().getField();
+		var values = ProjectPreferences.getInstance().getValues();
+
+		robot = new Rectangle(values.getBumperLength() * field.getScale(), values.getBumperWidth() * field.getScale());
 		setupRobot();
 
 		icon = new Polygon(0.0, SIZE / 3, SIZE, 0.0, 0.0, -SIZE / 3);
@@ -121,6 +127,9 @@ public class Waypoint {
 						() -> getHeading() == null ? 0.0 : Math.toDegrees(Math.atan2(-getHeadingY(), getHeadingX())),
 						headingX, headingY));
 		robot.getStyleClass().add("robot");
+		robot.setSmooth(true);
+		robot.setStrokeLineJoin(StrokeLineJoin.ROUND);
+		robot.setOpacity(0.33);
 	}
 
 	/**

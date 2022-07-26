@@ -62,7 +62,7 @@ public class WpilibPath extends Path {
             update();
         });
         this.spline.addToGroup(this.mainGroup, DEFAULT_SPLINE_SCALE / field.getScale());
-        this.mainGroup.getChildren().addAll(this.iconGroup, this.robotGroup, this.tangentGroup, this.headingGroup);
+        this.mainGroup.getChildren().addAll(this.robotGroup, this.iconGroup, this.tangentGroup, this.headingGroup);
         this.waypoints.addAll(points);
 
         update();

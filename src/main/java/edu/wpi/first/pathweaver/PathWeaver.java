@@ -34,6 +34,8 @@ public class PathWeaver extends Application {
         e -> Platform.runLater(() -> primaryStage.setResizable(false)));
     primaryStage.setScene(this.mainScene);
     primaryStage.show();
+    mainScene.getStylesheets().add(
+        getClass().getResource("dark.css").toExternalForm());
     Loggers.setupLoggers();
   }
 
