@@ -204,7 +204,7 @@ public class WpilibPath extends Path {
         this(new Point2D(0, 0),
                 new Point2D(getDefaultLength(), getDefaultWidth()),
                 new Point2D(getDefaultLength(), 0), new Point2D(0, getDefaultWidth()),
-                new Point2D(3, -3), new Point2D(3, 3), name);
+                new Point2D(1, -1), new Point2D(1, 1), name);
     }
 
     /**

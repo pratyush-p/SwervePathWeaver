@@ -65,24 +65,20 @@ public class Waypoint {
 		tangentLine = new Line();
 		tangentLine.getStyleClass().add("tangent");
 		tangentLine.startXProperty().bind(x);
-		// Convert from WPILib to JavaFX coords
 		tangentLine.startYProperty().bind(y.negate());
 		setTangent(tangentVector);
 		tangentLine.endXProperty().bind(Bindings.createObjectBinding(() -> getTangentX() + getX(), tangentX, x));
-
-		// Convert from WPILib to JavaFX coords
 		tangentLine.endYProperty().bind(Bindings.createObjectBinding(() -> -getTangentY() + -getY(), tangentY, y));
+		tangentLine.setSmooth(true);
 
 		headingLine = new Line();
 		headingLine.getStyleClass().add("heading");
 		headingLine.startXProperty().bind(x);
-		// Convert from WPILib to JavaFX coords
 		headingLine.startYProperty().bind(y.negate());
 		setHeading(headingVector);
 		headingLine.endXProperty().bind(Bindings.createObjectBinding(() -> getHeadingX() + getX(), headingX, x));
-
-		// Convert from WPILib to JavaFX coords
 		headingLine.endYProperty().bind(Bindings.createObjectBinding(() -> -getHeadingY() + -getY(), headingY, y));
+		headingLine.setSmooth(true);
 
 	}
 
@@ -96,7 +92,6 @@ public class Waypoint {
 		icon.setLayoutY(-(icon.getLayoutBounds().getMaxY() + icon.getLayoutBounds().getMinY()) / 2);
 
 		icon.translateXProperty().bind(x);
-		// Convert from WPILib to JavaFX coords
 		icon.translateYProperty().bind(y.negate());
 		FxUtils.applySubchildClasses(this.icon);
 		this.icon.rotateProperty()

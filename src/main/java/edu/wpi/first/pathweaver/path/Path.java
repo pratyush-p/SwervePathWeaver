@@ -144,7 +144,7 @@ public abstract class Path {
         for (int i = 1; i < waypoints.size(); i++) {
             if (waypoints.get(i - 1).equals(start) && waypoints.get(i).equals(end)) {
                 Waypoint toAdd = new Waypoint(coordinates, new Point2D(0, 0),
-                        new Point2D(0, 0), false, start.isReversed());
+                        new Point2D(1, 1), false, start.isReversed());
                 waypoints.add(i, toAdd);
 
                 updateTangent(toAdd);
@@ -248,6 +248,18 @@ public abstract class Path {
         CurrentSelections.setCurPath(this);
     }
 
+    public void selectWaypointDrag(Waypoint waypoint) {
+        Waypoint curWaypoint = CurrentSelections.getCurWaypoint();
+        if (curWaypoint != null) {
+            deselectWaypointDrag(curWaypoint);
+        }
+        waypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, true);
+        waypoint.getIcon().requestFocus();
+        waypoint.getIcon().toFront();
+        CurrentSelections.setCurWaypoint(waypoint);
+        CurrentSelections.setCurPath(this);
+    }
+
     /**
      * Selects the given waypoint by calling the appropriate methods in
      * {@link CurrentSelections}, making care to update the waypoint.
@@ -262,6 +274,15 @@ public abstract class Path {
             curWaypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, false);
             mainGroup.requestFocus();
             CurrentSelections.setCurWaypoint(null);
+        }
+    }
+
+    public void deselectWaypointDrag(Waypoint waypoint) {
+        Waypoint curWaypoint = CurrentSelections.getCurWaypoint();
+        if (CurrentSelections.getCurWaypoint() == waypoint) {
+            curWaypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, false);
+            mainGroup.requestFocus();
+            CurrentSelections.setCurWaypoint(waypoint);
         }
     }
 

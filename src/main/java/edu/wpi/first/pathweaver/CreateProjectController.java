@@ -54,6 +54,8 @@ public class CreateProjectController {
 	@FXML
 	private TextField trackWidth;
 	@FXML
+	private TextField wheelBase;
+	@FXML
 	private ChoiceBox<Game> game;
 	@FXML
 	private ChoiceBox<Unit<Length>> length;
@@ -70,11 +72,15 @@ public class CreateProjectController {
 	@FXML
 	private Label trackWidthLabel;
 	@FXML
+	private Label wheelBaseLabel;
+	@FXML
 	private Label velocityUnits;
 	@FXML
 	private Label accelerationUnits;
 	@FXML
 	private Label trackWidthUnits;
+	@FXML
+	private Label wheelBaseUnits;
 
 	private boolean editing = false;
 
@@ -82,7 +88,7 @@ public class CreateProjectController {
 
 	private void initialize() {
 		ObservableList<TextField> numericFields = FXCollections.observableArrayList(maxVelocity,
-				maxAcceleration, trackWidth);
+				maxAcceleration, trackWidth, wheelBase);
 		ObservableList<TextField> allFields = FXCollections.observableArrayList(numericFields);
 		allFields.add(directory);
 
@@ -91,6 +97,7 @@ public class CreateProjectController {
 		var velocityControls = List.of(velocityLabel, maxVelocity, velocityUnits);
 		var accelerationControls = List.of(accelerationLabel, maxAcceleration, accelerationUnits);
 		var trackWidthControls = List.of(trackWidthLabel, trackWidth, trackWidthUnits);
+		var wheelBaseControls = List.of(wheelBaseLabel, wheelBase, wheelBaseUnits);
 
 		BooleanBinding bind = new SimpleBooleanProperty(true).not();
 		for (TextField field : allFields) {
@@ -144,8 +151,6 @@ public class CreateProjectController {
 			}
 		});
 
-
-
 		var lengthUnit = EasyBind.monadic(length.getSelectionModel().selectedItemProperty());
 		directoryControls.forEach(control -> control.setTooltip(new Tooltip("The directory to store your project.\n"
 				+ "It will be stored at a PathWeaver subdirectory of this location.\n"
@@ -165,21 +170,22 @@ public class CreateProjectController {
 		accelerationUnits.textProperty().bind(
 				lengthUnit.map(PathUnits.getInstance()::accelerationUnit).map(SimpleUnitFormat.getInstance()::format));
 		trackWidthControls.forEach(
-				control -> control.setTooltip(new Tooltip("The width between the center of each tire of the " +
-						"drivebase.  Even better would be a calculated track width from robot characterization.")));
+				control -> control.setTooltip(new Tooltip("The width between the center of the right and left wheels")));
 		trackWidthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
+		wheelBaseControls.forEach(
+				control -> control.setTooltip(new Tooltip("The width between the center of the front and back wheels.")));
+		wheelBaseUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
 		// Show longer text for an extended period of time
 		Stream.of(directoryControls, outputControls).flatMap(List::stream)
 				.forEach(control -> control.getTooltip().setShowDuration(Duration.seconds(10)));
 		Stream.of(directoryControls, outputControls, velocityControls, accelerationControls,
-				trackWidthControls).flatMap(List::stream)
+				trackWidthControls, wheelBaseControls).flatMap(List::stream)
 				.forEach(control -> control.getTooltip().setShowDelay(Duration.millis(150)));
 
 		// We are editing a project
 		if (ProjectPreferences.getInstance() != null) {
 			setupEditProject();
-		}
-		else {
+		} else {
 			setupCreateProject();
 		}
 	}
@@ -197,6 +203,7 @@ public class CreateProjectController {
 		maxVelocity.setText("");
 		maxAcceleration.setText("");
 		trackWidth.setText("");
+		wheelBase.setText("");
 		editing = false;
 	}
 
@@ -222,8 +229,9 @@ public class CreateProjectController {
 		double velocityMax = Double.parseDouble(maxVelocity.getText());
 		double accelerationMax = Double.parseDouble(maxAcceleration.getText());
 		double trackWidthDistance = Double.parseDouble(trackWidth.getText());
+		double wheelBaseDistance = Double.parseDouble(wheelBase.getText());
 		ProjectPreferences.Values values = new ProjectPreferences.Values(lengthUnit, exportUnit, velocityMax,
-				accelerationMax, trackWidthDistance, game.getValue().getName(), outputPath);
+				accelerationMax, trackWidthDistance, wheelBaseDistance, game.getValue().getName(), outputPath);
 		ProjectPreferences prefs = ProjectPreferences.getInstance(directory.getAbsolutePath());
 		prefs.setValues(values);
 		editing = false;
@@ -270,6 +278,7 @@ public class CreateProjectController {
 		maxVelocity.setText(String.valueOf(values.getMaxVelocity()));
 		maxAcceleration.setText(String.valueOf(values.getMaxAcceleration()));
 		trackWidth.setText(String.valueOf(values.getTrackWidth()));
+		wheelBase.setText(String.valueOf(values.getWheelBase()));
 		editing = true;
 	}
 }

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class ProjectPreferences {
 	public enum ExportUnit {
 		METER("Always Meters"), SAME("Same as Project");
+
 		private static final Map<String, ExportUnit> STRING_EXPORT_UNIT_MAP;
 
 		private final String name;
@@ -71,15 +72,17 @@ public class ProjectPreferences {
 				values.lengthUnit = "METER";
 			}
 
-			if(values.exportUnit == null) {
+			if (values.exportUnit == null) {
 				values.exportUnit = "Same as Project";
 
 				Alert alert = new Alert(Alert.AlertType.WARNING);
 				FxUtils.applyDarkMode(alert);
 				alert.setTitle("Export Units Warning");
 				alert.setContentText(
-						"Your project was imported from an older version of PathWeaver, where the exported units were always in the specified units. " +
-								"This causes issues with WPILib trajectory following. Please click on Edit Project and choose an appropriate `Export Unit` setting. " +
+						"Your project was imported from an older version of PathWeaver, where the exported units were always in the specified units. "
+								+
+								"This causes issues with WPILib trajectory following. Please click on Edit Project and choose an appropriate `Export Unit` setting. "
+								+
 								"It has been defaulted to `Same as Project` for backwards compatibility.");
 				((Stage) alert.getDialogPane().getScene().getWindow()).setAlwaysOnTop(true);
 				alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
@@ -103,7 +106,7 @@ public class ProjectPreferences {
 	}
 
 	private void setDefaults() {
-		values = new Values("FOOT", "Always Meters", 10.0, 60.0, 2.0, Game.INFINTE_RECHARGE_2020.getName(), null);
+		values = new Values("FOOT", "Always Meters", 10.0, 60.0, 2.0, 2.0, Game.INFINTE_RECHARGE_2020.getName(), null);
 		updateValues();
 	}
 
@@ -125,7 +128,7 @@ public class ProjectPreferences {
 	 * Sets the preferences for the current project.
 	 *
 	 * @param values
-	 *            Values to set for preferences.
+	 *               Values to set for preferences.
 	 */
 	public void setValues(Values values) {
 		this.values = values;
@@ -141,7 +144,7 @@ public class ProjectPreferences {
 	 * directory.
 	 *
 	 * @param folder
-	 *            Path to project folder.
+	 *               Path to project folder.
 	 * @return Singleton instance of ProjectPreferences.
 	 */
 	@SuppressWarnings("PMD.NonThreadSafeSingleton")
@@ -163,8 +166,8 @@ public class ProjectPreferences {
 	}
 
 	public static void resetInstance() {
-			instance = null;
-		}
+		instance = null;
+	}
 
 	public static boolean projectExists(String folder) {
 		return Files.exists(Paths.get(folder, FILE_NAME));
@@ -210,7 +213,7 @@ public class ProjectPreferences {
 	 * Otherwise it simply returns the output subdirectory.
 	 *
 	 * @param directory
-	 *            Directory to return output directory for.
+	 *                  Directory to return output directory for.
 	 * @return A File that is the output directory.
 	 */
 	private File getOutputDir(File directory) {
@@ -240,8 +243,10 @@ public class ProjectPreferences {
 		private String exportUnit;
 		private final double maxVelocity;
 		private final double maxAcceleration;
-		@SerializedName(value = "trackWidth", alternate = "wheelBase")
+		@SerializedName(value = "trackWidth")
 		private final double trackWidth;
+		@SerializedName(value = "wheelBase")
+		private final double wheelBase;
 		private String gameName;
 		private final String outputDir;
 
@@ -249,26 +254,29 @@ public class ProjectPreferences {
 		 * Constructor for Values of ProjectPreferences.
 		 *
 		 * @param lengthUnit
-		 *            The unit to use for distances
+		 *                        The unit to use for distances
 		 * @param maxVelocity
-		 *            The maximum velocity the body is capable of travelling at
+		 *                        The maximum velocity the body is capable of travelling
+		 *                        at
 		 * @param maxAcceleration
-		 *            The maximum acceleration to use
+		 *                        The maximum acceleration to use
 		 * @param trackWidth
-		 *            The width between the center of each tire of the drivebase.  Even better would be a calculated
-		 *            track width from robot characterization.
+		 *                        The width between the center of each tire of the
+		 *                        drivebase. Even better would be a calculated
+		 *                        track width from robot characterization.
 		 * @param gameName
-		 *            The year/FRC game
+		 *                        The year/FRC game
 		 * @param outputDir
-		 *            The directory for the output files
+		 *                        The directory for the output files
 		 */
 		public Values(String lengthUnit, String exportUnit, double maxVelocity, double maxAcceleration,
-				double trackWidth, String gameName, String outputDir) {
+				double trackWidth, double wheelBase, String gameName, String outputDir) {
 			this.lengthUnit = lengthUnit;
 			this.exportUnit = exportUnit;
 			this.maxVelocity = maxVelocity;
 			this.maxAcceleration = maxAcceleration;
 			this.trackWidth = trackWidth;
+			this.wheelBase = wheelBase;
 			this.gameName = gameName;
 			this.outputDir = outputDir;
 		}
@@ -291,6 +299,10 @@ public class ProjectPreferences {
 
 		public double getTrackWidth() {
 			return trackWidth;
+		}
+
+		public double getWheelBase() {
+			return wheelBase;
 		}
 
 		public String getGameName() {

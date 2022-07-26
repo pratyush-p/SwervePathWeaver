@@ -179,7 +179,9 @@ public class EditWaypointController {
 
     lockedTangent.selectedProperty()
         .addListener((listener, oldValue, newValue) -> {
-          if (wp.getValue().isLockTangent() != newValue) {
+          if (newValue == null) {
+            SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
+          } else if (wp.getValue().isLockTangent() != newValue) {
             SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
           }
         });

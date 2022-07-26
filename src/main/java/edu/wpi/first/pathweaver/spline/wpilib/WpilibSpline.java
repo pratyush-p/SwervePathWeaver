@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.spline.PoseWithCurvature;
 import edu.wpi.first.math.spline.QuinticHermiteSpline;
 import edu.wpi.first.math.spline.Spline;
@@ -120,6 +121,12 @@ public class WpilibSpline extends AbstractSpline {
             var maxVelocity = values.getMaxVelocity();
             var maxAcceleration = values.getMaxAcceleration();
             var trackWidth = values.getTrackWidth();
+            var wheelBase = values.getWheelBase();
+            SwerveDriveKinematics swerveKine = new SwerveDriveKinematics(
+                    new Translation2d(wheelBase / 2, -trackWidth / 2),
+                    new Translation2d(wheelBase / 2, trackWidth / 2),
+                    new Translation2d(-wheelBase / 2, -trackWidth / 2),
+                    new Translation2d(-wheelBase / 2, trackWidth / 2));
 
             // If the export type is different (i.e. meters), then we have to convert it.
             // Otherwise we are good.
@@ -129,10 +136,11 @@ public class WpilibSpline extends AbstractSpline {
                 maxVelocity = converter.convert(maxVelocity);
                 maxAcceleration = converter.convert(maxAcceleration);
                 trackWidth = converter.convert(trackWidth);
+                wheelBase = converter.convert(wheelBase);
             }
 
             TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration)
-                    .setKinematics(new DifferentialDriveKinematics(trackWidth))
+                    .setKinematics(swerveKine)
                     .setReversed(waypoints.get(0).isReversed());
             Trajectory traj = trajectoryFromWaypoints(waypoints, config);
 

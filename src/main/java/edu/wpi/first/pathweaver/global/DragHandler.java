@@ -82,7 +82,7 @@ public class DragHandler {
       path.recalculateTangents(point);
       path.update();
     }
-    CurrentSelections.getCurPath().selectWaypoint(point);
+    CurrentSelections.getCurPath().selectWaypointDrag(point);
   }
 
   private void handleVectorDrag(DragEvent event, Path path, Waypoint wp) {
@@ -106,7 +106,7 @@ public class DragHandler {
     } else {
       Waypoint cur = path.addWaypoint(new Point2D(event.getX(), event.getY()), CurrentSelections.getCurSplineStart(),
           CurrentSelections.getCurSplineEnd());
-      path.selectWaypoint(cur);
+      path.selectWaypointDrag(cur);
       CurrentSelections.setCurPath(path);
       CurrentSelections.setCurSplineStart(null);
       CurrentSelections.setCurSplineEnd(null);
