@@ -56,6 +56,10 @@ public class CreateProjectController {
 	@FXML
 	private TextField wheelBase;
 	@FXML
+	private TextField bumperWidth;
+	@FXML
+	private TextField bumperLength;
+	@FXML
 	private ChoiceBox<Game> game;
 	@FXML
 	private ChoiceBox<Unit<Length>> length;
@@ -74,6 +78,10 @@ public class CreateProjectController {
 	@FXML
 	private Label wheelBaseLabel;
 	@FXML
+	private Label bumperWidthLabel;
+	@FXML
+	private Label bumperLengthLabel;
+	@FXML
 	private Label velocityUnits;
 	@FXML
 	private Label accelerationUnits;
@@ -81,6 +89,10 @@ public class CreateProjectController {
 	private Label trackWidthUnits;
 	@FXML
 	private Label wheelBaseUnits;
+	@FXML
+	private Label bumperWidthUnits;
+	@FXML
+	private Label bumperLengthUnits;
 
 	private boolean editing = false;
 
@@ -88,7 +100,7 @@ public class CreateProjectController {
 
 	private void initialize() {
 		ObservableList<TextField> numericFields = FXCollections.observableArrayList(maxVelocity,
-				maxAcceleration, trackWidth, wheelBase);
+				maxAcceleration, trackWidth, wheelBase, bumperWidth, bumperLength);
 		ObservableList<TextField> allFields = FXCollections.observableArrayList(numericFields);
 		allFields.add(directory);
 
@@ -98,6 +110,8 @@ public class CreateProjectController {
 		var accelerationControls = List.of(accelerationLabel, maxAcceleration, accelerationUnits);
 		var trackWidthControls = List.of(trackWidthLabel, trackWidth, trackWidthUnits);
 		var wheelBaseControls = List.of(wheelBaseLabel, wheelBase, wheelBaseUnits);
+		var bumperWidthControls = List.of(bumperWidthLabel, bumperWidth, bumperWidthUnits);
+		var bumperLengthControls = List.of(bumperLengthLabel, bumperLength, bumperLengthUnits);
 
 		BooleanBinding bind = new SimpleBooleanProperty(true).not();
 		for (TextField field : allFields) {
@@ -170,16 +184,22 @@ public class CreateProjectController {
 		accelerationUnits.textProperty().bind(
 				lengthUnit.map(PathUnits.getInstance()::accelerationUnit).map(SimpleUnitFormat.getInstance()::format));
 		trackWidthControls.forEach(
-				control -> control.setTooltip(new Tooltip("The width between the center of the right and left wheels")));
+				control -> control.setTooltip(new Tooltip("The distance between the center of the right and left wheels.")));
 		trackWidthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
 		wheelBaseControls.forEach(
-				control -> control.setTooltip(new Tooltip("The width between the center of the front and back wheels.")));
+				control -> control.setTooltip(new Tooltip("The distance between the center of the front and back wheels.")));
 		wheelBaseUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
+		bumperWidthControls.forEach(
+				control -> control.setTooltip(new Tooltip("The distance between the left and right edges of the bumper.")));
+		bumperWidthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
+		bumperLengthControls.forEach(
+				control -> control.setTooltip(new Tooltip("The distance between the left and right edges of the bumper.")));
+		bumperLengthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
 		// Show longer text for an extended period of time
 		Stream.of(directoryControls, outputControls).flatMap(List::stream)
 				.forEach(control -> control.getTooltip().setShowDuration(Duration.seconds(10)));
 		Stream.of(directoryControls, outputControls, velocityControls, accelerationControls,
-				trackWidthControls, wheelBaseControls).flatMap(List::stream)
+				trackWidthControls, wheelBaseControls, bumperWidthControls, bumperLengthControls).flatMap(List::stream)
 				.forEach(control -> control.getTooltip().setShowDelay(Duration.millis(150)));
 
 		// We are editing a project
@@ -204,6 +224,8 @@ public class CreateProjectController {
 		maxAcceleration.setText("");
 		trackWidth.setText("");
 		wheelBase.setText("");
+		bumperWidth.setText("");
+		bumperLength.setText("");
 		editing = false;
 	}
 
@@ -230,8 +252,11 @@ public class CreateProjectController {
 		double accelerationMax = Double.parseDouble(maxAcceleration.getText());
 		double trackWidthDistance = Double.parseDouble(trackWidth.getText());
 		double wheelBaseDistance = Double.parseDouble(wheelBase.getText());
+		double bumperWidthDistance = Double.parseDouble(bumperWidth.getText());
+		double bumperLengthDistance = Double.parseDouble(bumperLength.getText());
 		ProjectPreferences.Values values = new ProjectPreferences.Values(lengthUnit, exportUnit, velocityMax,
-				accelerationMax, trackWidthDistance, wheelBaseDistance, game.getValue().getName(), outputPath);
+				accelerationMax, trackWidthDistance, wheelBaseDistance, bumperWidthDistance, bumperLengthDistance,
+				game.getValue().getName(), outputPath);
 		ProjectPreferences prefs = ProjectPreferences.getInstance(directory.getAbsolutePath());
 		prefs.setValues(values);
 		editing = false;
@@ -279,6 +304,8 @@ public class CreateProjectController {
 		maxAcceleration.setText(String.valueOf(values.getMaxAcceleration()));
 		trackWidth.setText(String.valueOf(values.getTrackWidth()));
 		wheelBase.setText(String.valueOf(values.getWheelBase()));
+		bumperWidth.setText(String.valueOf(values.getBumperWidth()));
+		bumperLength.setText(String.valueOf(values.getBumperLength()));
 		editing = true;
 	}
 }

@@ -241,6 +241,9 @@ public abstract class Path {
         if (curWaypoint != null) {
             deselectWaypoint(curWaypoint);
         }
+        waypoint.getRobot().pseudoClassStateChanged(SELECTED_CLASS, true);
+        waypoint.getRobot().requestFocus();
+        // waypoint.getRobot().toFront();
         waypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, true);
         waypoint.getIcon().requestFocus();
         waypoint.getIcon().toFront();
@@ -253,6 +256,9 @@ public abstract class Path {
         if (curWaypoint != null) {
             deselectWaypointDrag(curWaypoint);
         }
+        waypoint.getRobot().pseudoClassStateChanged(SELECTED_CLASS, true);
+        waypoint.getRobot().requestFocus();
+        // waypoint.getRobot().toFront();
         waypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, true);
         waypoint.getIcon().requestFocus();
         waypoint.getIcon().toFront();
@@ -271,6 +277,7 @@ public abstract class Path {
     public void deselectWaypoint(Waypoint waypoint) {
         Waypoint curWaypoint = CurrentSelections.getCurWaypoint();
         if (CurrentSelections.getCurWaypoint() == waypoint) {
+            // curWaypoint.getRobot().pseudoClassStateChanged(SELECTED_CLASS, false);
             curWaypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, false);
             mainGroup.requestFocus();
             CurrentSelections.setCurWaypoint(null);
@@ -280,6 +287,7 @@ public abstract class Path {
     public void deselectWaypointDrag(Waypoint waypoint) {
         Waypoint curWaypoint = CurrentSelections.getCurWaypoint();
         if (CurrentSelections.getCurWaypoint() == waypoint) {
+            // curWaypoint.getRobot().pseudoClassStateChanged(SELECTED_CLASS, false);
             curWaypoint.getIcon().pseudoClassStateChanged(SELECTED_CLASS, false);
             mainGroup.requestFocus();
             CurrentSelections.setCurWaypoint(waypoint);

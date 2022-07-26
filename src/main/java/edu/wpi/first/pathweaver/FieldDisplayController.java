@@ -47,23 +47,27 @@ public class FieldDisplayController {
         backgroundImage.setImage(image);
         topPane.getStyleClass().add("pane");
         Scale scale = new Scale();
-        scale.xProperty().bind(Bindings.createDoubleBinding(() ->
-                        Math.min(topPane.getWidth() / image.getWidth(), topPane.getHeight() / image.getHeight()),
-                topPane.widthProperty(), topPane.heightProperty()));
-        scale.yProperty().bind(Bindings.createDoubleBinding(() ->
-                        Math.min(topPane.getWidth() / image.getWidth(), topPane.getHeight() / image.getHeight()),
-                topPane.widthProperty(), topPane.heightProperty()));
+        scale.xProperty()
+                .bind(Bindings.createDoubleBinding(
+                        () -> Math.min(topPane.getWidth() / image.getWidth(), topPane.getHeight() / image.getHeight()),
+                        topPane.widthProperty(), topPane.heightProperty()));
+        scale.yProperty()
+                .bind(Bindings.createDoubleBinding(
+                        () -> Math.min(topPane.getWidth() / image.getWidth(), topPane.getHeight() / image.getHeight()),
+                        topPane.widthProperty(), topPane.heightProperty()));
 
         group.getTransforms().add(scale);
 
         setupDrawPaneSizing();
         this.drawPane.setOnMouseClicked(e -> {
             if (CurrentSelections.getCurWaypoint() != null) {
+                // CurrentSelections.getCurWaypoint().getRobot().pseudoClassStateChanged(SELECTED_CLASS,
+                // false);
                 CurrentSelections.getCurWaypoint().getIcon().pseudoClassStateChanged(SELECTED_CLASS, false);
                 CurrentSelections.setCurWaypoint(null);
             }
 
-            if(CurrentSelections.getCurPath() != null) {
+            if (CurrentSelections.getCurPath() != null) {
                 CurrentSelections.getCurPath().update();
             }
         });
@@ -162,14 +166,15 @@ public class FieldDisplayController {
     }
 
     /**
-     * Checks if the given x, y coordinates are within the valid area of the drawpane.
+     * Checks if the given x, y coordinates are within the valid area of the
+     * drawpane.
      *
      * @param x X coordinate, following {@link Waypoint} convention
      * @param y Y coordinate following {@link Waypoint} convention
      * @return True if X, Y is within the bounds of the drawpane.
      */
     public boolean checkBounds(double x, double y) {
-        //Convert waypoint convention to JavaFX
+        // Convert waypoint convention to JavaFX
         return drawPane.getLayoutBounds().contains(x, -y);
     }
 }

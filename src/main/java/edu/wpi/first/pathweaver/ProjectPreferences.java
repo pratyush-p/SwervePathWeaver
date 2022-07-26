@@ -106,7 +106,8 @@ public class ProjectPreferences {
 	}
 
 	private void setDefaults() {
-		values = new Values("FOOT", "Always Meters", 10.0, 60.0, 2.0, 2.0, Game.INFINTE_RECHARGE_2020.getName(), null);
+		values = new Values("FOOT", "Always Meters", 10.0, 60.0, 2.0, 2.0, 2.0, 2.0, Game.INFINTE_RECHARGE_2020.getName(),
+				null);
 		updateValues();
 	}
 
@@ -247,6 +248,10 @@ public class ProjectPreferences {
 		private final double trackWidth;
 		@SerializedName(value = "wheelBase")
 		private final double wheelBase;
+		@SerializedName(value = "bumperWidth")
+		private final double bumperWidth;
+		@SerializedName(value = "bumperLength")
+		private final double bumperLength;
 		private String gameName;
 		private final String outputDir;
 
@@ -270,13 +275,16 @@ public class ProjectPreferences {
 		 *                        The directory for the output files
 		 */
 		public Values(String lengthUnit, String exportUnit, double maxVelocity, double maxAcceleration,
-				double trackWidth, double wheelBase, String gameName, String outputDir) {
+				double trackWidth, double wheelBase, double bumperWidth, double bumperLength, String gameName,
+				String outputDir) {
 			this.lengthUnit = lengthUnit;
 			this.exportUnit = exportUnit;
 			this.maxVelocity = maxVelocity;
 			this.maxAcceleration = maxAcceleration;
 			this.trackWidth = trackWidth;
 			this.wheelBase = wheelBase;
+			this.bumperWidth = bumperWidth;
+			this.bumperLength = bumperLength;
 			this.gameName = gameName;
 			this.outputDir = outputDir;
 		}
@@ -303,6 +311,14 @@ public class ProjectPreferences {
 
 		public double getWheelBase() {
 			return wheelBase;
+		}
+
+		public double getBumperWidth() {
+			return bumperWidth;
+		}
+
+		public double getBumperLength() {
+			return bumperLength;
 		}
 
 		public String getGameName() {

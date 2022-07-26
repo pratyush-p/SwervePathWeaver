@@ -10,6 +10,8 @@ import javafx.beans.property.StringProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
@@ -40,6 +42,7 @@ public class Waypoint {
 	private final Line tangentLine;
 	private final Line headingLine;
 	private final Polygon icon;
+	private final Rectangle robot;
 
 	/**
 	 * Creates Waypoint object containing javafx circle.
@@ -58,6 +61,9 @@ public class Waypoint {
 		lockHeading.set(true);
 		reversed.set(reverse);
 		setCoords(position);
+
+		robot = new Rectangle(SIZE, SIZE);
+		setupRobot();
 
 		icon = new Polygon(0.0, SIZE / 3, SIZE, 0.0, 0.0, -SIZE / 3);
 		setupIcon();
@@ -83,7 +89,9 @@ public class Waypoint {
 	}
 
 	public void enableSubchildSelector(int i) {
+		// FxUtils.enableSubchildSelector(this.robot, i);
 		FxUtils.enableSubchildSelector(this.icon, i);
+		// getRobot().applyCss();
 		getIcon().applyCss();
 	}
 
@@ -99,6 +107,20 @@ public class Waypoint {
 						() -> getHeading() == null ? 0.0 : Math.toDegrees(Math.atan2(-getHeadingY(), getHeadingX())),
 						headingX, headingY));
 		icon.getStyleClass().add("waypoint");
+	}
+
+	private void setupRobot() {
+		robot.setLayoutX(-(robot.getLayoutBounds().getMaxX() + robot.getLayoutBounds().getMinX()) / 2);
+		robot.setLayoutY(-(robot.getLayoutBounds().getMaxY() + robot.getLayoutBounds().getMinY()) / 2);
+
+		robot.translateXProperty().bind(x);
+		robot.translateYProperty().bind(y.negate());
+		FxUtils.applySubchildClasses(this.robot);
+		this.robot.rotateProperty()
+				.bind(Bindings.createObjectBinding(
+						() -> getHeading() == null ? 0.0 : Math.toDegrees(Math.atan2(-getHeadingY(), getHeadingX())),
+						headingX, headingY));
+		robot.getStyleClass().add("robot");
 	}
 
 	/**
@@ -202,6 +224,10 @@ public class Waypoint {
 
 	public Polygon getIcon() {
 		return icon;
+	}
+
+	public Rectangle getRobot() {
+		return robot;
 	}
 
 	public double getX() {

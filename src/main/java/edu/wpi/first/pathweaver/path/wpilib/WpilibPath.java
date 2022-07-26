@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 public class WpilibPath extends Path {
     private final Group iconGroup = new Group();
+    private final Group robotGroup = new Group();
     private final Group tangentGroup = new Group();
     private final Group headingGroup = new Group();
 
@@ -39,6 +40,7 @@ public class WpilibPath extends Path {
             while (c.next()) {
                 for (Waypoint wp : c.getAddedSubList()) {
                     setupWaypoint(wp);
+                    robotGroup.getChildren().add(wp.getRobot());
                     iconGroup.getChildren().add(wp.getIcon());
                     tangentGroup.getChildren().add(wp.getTangentLine());
                     headingGroup.getChildren().add(wp.getHeadingLine());
@@ -52,6 +54,7 @@ public class WpilibPath extends Path {
 
                 for (Waypoint wp : c.getRemoved()) {
                     iconGroup.getChildren().remove(wp.getIcon());
+                    robotGroup.getChildren().remove(wp.getRobot());
                     tangentGroup.getChildren().remove(wp.getTangentLine());
                     headingGroup.getChildren().remove(wp.getHeadingLine());
                 }
@@ -59,7 +62,7 @@ public class WpilibPath extends Path {
             update();
         });
         this.spline.addToGroup(this.mainGroup, DEFAULT_SPLINE_SCALE / field.getScale());
-        this.mainGroup.getChildren().addAll(this.iconGroup, this.tangentGroup, this.headingGroup);
+        this.mainGroup.getChildren().addAll(this.iconGroup, this.robotGroup, this.tangentGroup, this.headingGroup);
         this.waypoints.addAll(points);
 
         update();
@@ -67,6 +70,14 @@ public class WpilibPath extends Path {
     }
 
     private void setupDrag(Waypoint waypoint) {
+        waypoint.getRobot().setOnDragDetected(event -> {
+            CurrentSelections.setCurWaypoint(waypoint);
+            CurrentSelections.setCurPath(this);
+            var db = waypoint.getRobot().startDragAndDrop(TransferMode.MOVE);
+            db.setContent(Map.of(DataFormats.WAYPOINT, "point"));
+            db.setDragView(new WritableImage(1, 1));
+        });
+
         waypoint.getIcon().setOnDragDetected(event -> {
             CurrentSelections.setCurWaypoint(waypoint);
             CurrentSelections.setCurPath(this);
@@ -93,6 +104,15 @@ public class WpilibPath extends Path {
     }
 
     private void setupClick(Waypoint waypoint) {
+        waypoint.getRobot().setOnMouseClicked(e -> {
+            if (e.getClickCount() == 1) {
+                toggleWaypoint(waypoint);
+            } else if (e.getClickCount() == 2) {
+                waypoint.setLockTangent(false);
+            }
+            e.consume();
+        });
+
         waypoint.getIcon().setOnMouseClicked(e -> {
             if (e.getClickCount() == 1) {
                 toggleWaypoint(waypoint);
@@ -191,6 +211,8 @@ public class WpilibPath extends Path {
 
         waypoint.getIcon().setScaleX(DEFAULT_CIRCLE_SCALE / field.getScale());
         waypoint.getIcon().setScaleY(DEFAULT_CIRCLE_SCALE / field.getScale());
+        waypoint.getRobot().setScaleX(DEFAULT_CIRCLE_SCALE / field.getScale());
+        waypoint.getRobot().setScaleY(DEFAULT_CIRCLE_SCALE / field.getScale());
         waypoint.getTangentLine().setStrokeWidth(DEFAULT_LINE_SCALE / field.getScale());
         waypoint.getHeadingLine().setStrokeWidth(DEFAULT_LINE_SCALE / field.getScale());
     }
