@@ -13,6 +13,8 @@ import edu.wpi.first.math.spline.SplineHelper;
 import edu.wpi.first.math.spline.SplineParameterizer.MalformedSplineException;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -73,7 +75,7 @@ public final class PratsTrajectoryGenerator {
     // Get the spline points
     List<PratsPoseWithCurvature> points;
     try {
-      points = splinePointsFromSplines(PratsSplineHelper.getQuinticSplinesFromWaypoints(newWaypoints));
+      points = splinePointsFromSplines(PratsSplineHelper.getQuinticSplinesFromWaypoints(newWaypoints), newWaypoints);
     } catch (MalformedSplineException ex) {
       reportError(ex.getMessage(), ex.getStackTrace());
       return kDoNothingTrajectory;
@@ -98,6 +100,8 @@ public final class PratsTrajectoryGenerator {
         config.isReversed());
   }
 
+  public static List<PratsPoseWithCurvature> finalizedSplinePoints;
+
   /**
    * Generate spline points from a vector of splines by parameterizing the
    * splines.
@@ -108,7 +112,7 @@ public final class PratsTrajectoryGenerator {
    *                                  adjacent points
    *                                  with approximately opposing headings)
    */
-  public static List<PratsPoseWithCurvature> splinePointsFromSplines(PratsSpline[] splines) {
+  public static List<PratsPoseWithCurvature> splinePointsFromSplines(PratsSpline[] splines, List<PratsPose2d> wps) {
     // Create the vector of spline points.
     var splinePoints = new ArrayList<PratsPoseWithCurvature>();
 
@@ -125,7 +129,92 @@ public final class PratsTrajectoryGenerator {
       // spline.
       splinePoints.addAll(points.subList(1, points.size()));
     }
+
+    int i = 0;
+    int x = 0;
+    int k = 0;
+    int[] wi = new int[500];
+
+    for (final var splinePoint : splinePoints) {
+      for (final var wp : wps) {
+        if ((round(splinePoint.poseMeters.getTranslation().getX(), 3) == round(wp.getTranslation().getX(), 3)) &&
+            (round(splinePoint.poseMeters.getTranslation().getY(), 3) == round(wp.getTranslation().getY(), 3))) {
+          splinePoint.poseMeters.setRotation(wp.getRotation());
+          wi[x] = i;
+          x++;
+        }
+      }
+      splinePoints.set(i, splinePoint);
+      i++;
+    }
+
+    finalizedSplinePoints = splinePoints;
+
+    for (int b = 0; b < x; b++) {
+      System.out.println(wi[b]);
+    }
+
+    for (final var splinePointB : splinePoints) {
+      PratsPose2d point = splinePointB.poseMeters;
+      if (point.getRotation().getRadians() != 4) {
+
+      } else {
+        point.setRotation(Rotation2d.fromDegrees(rotationAvg(k, x, wi, i)));
+      }
+      k++;
+    }
+
     return splinePoints;
+  }
+
+  private static double round(double value, int places) {
+    if (places < 0)
+      throw new IllegalArgumentException();
+
+    BigDecimal bd = BigDecimal.valueOf(value);
+    bd = bd.setScale(places, RoundingMode.HALF_UP);
+    return bd.doubleValue();
+  }
+
+  private static double rotationAvg(int index, int x, int[] wi, int i) {
+    int smallerIndex = 0;
+    int biggerIndex = 0;
+    int indexDifferenceRange = 0;
+    int indexDifferencePoint = 0;
+    for (int _i = 0; _i < (x - 1); _i++) {
+      if (index > wi[_i] && index < wi[_i + 1]) {
+        smallerIndex = wi[_i];
+        biggerIndex = wi[_i + 1];
+        indexDifferenceRange = biggerIndex - smallerIndex;
+        indexDifferencePoint = index - smallerIndex;
+      }
+    }
+    double returnVal = finalizedSplinePoints.get(smallerIndex).poseMeters.getRotation().getDegrees();
+    double pointOneDeg = finalizedSplinePoints.get(smallerIndex).poseMeters.getRotation().getDegrees();
+    double pointTwoDeg = finalizedSplinePoints.get(biggerIndex).poseMeters.getRotation().getDegrees();
+    double range = findDegDist(pointOneDeg, pointTwoDeg);
+    double rangePerIndex = range / indexDifferenceRange;
+    for (int _k = 0; _k < indexDifferencePoint; _k++) {
+      returnVal += rangePerIndex;
+    }
+    return returnVal;
+  }
+
+  public static double findDegDist(double a, double b) {
+    a += 180;
+    b += 180;
+    double alpha = b - a;
+    double beta = b - a + 360;
+    double gamma = b - a - 360;
+    if (Math.abs(alpha) <= Math.abs(beta) && Math.abs(alpha) <= Math.abs(gamma)) {
+      return alpha;
+    } else if (Math.abs(beta) <= Math.abs(alpha) && Math.abs(beta) <= Math.abs(gamma)) {
+      return beta;
+    } else if (Math.abs(gamma) <= Math.abs(beta) && Math.abs(gamma) <= Math.abs(alpha)) {
+      return gamma;
+    } else {
+      return 0.0;
+    }
   }
 
   // Work around type erasure signatures

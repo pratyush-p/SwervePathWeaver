@@ -22,7 +22,7 @@ import java.util.Objects;
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class PratsPose2d implements Interpolatable<PratsPose2d> {
   private final Translation2d m_translation;
-  private final Rotation2d m_rotation;
+  private Rotation2d m_rotation;
   private final Rotation2d m_tangent;
 
   /** Constructs a pose at the origin facing toward the positive X axis. */
@@ -140,6 +140,10 @@ public class PratsPose2d implements Interpolatable<PratsPose2d> {
   @JsonProperty
   public Rotation2d getTangent() {
     return m_tangent;
+  }
+
+  public void setRotation(Rotation2d set_rot) {
+    m_rotation = set_rot;
   }
 
   /**
@@ -302,16 +306,16 @@ public class PratsPose2d implements Interpolatable<PratsPose2d> {
 
   public PratsTwist2d pratsLog(PratsPose2d end) {
     final var transform = end.pratsRelativeTo((this));
-    final var dtheta = transform.getRotation().getRadians();
+    final var dtheta = transform.getTangent().getRadians();
     final var halfDtheta = dtheta / 2.0;
 
-    final var cosMinusOne = transform.getRotation().getCos() - 1;
+    final var cosMinusOne = transform.getTangent().getCos() - 1;
 
     double halfThetaByTanOfHalfDtheta;
     if (Math.abs(cosMinusOne) < 1E-9) {
       halfThetaByTanOfHalfDtheta = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
     } else {
-      halfThetaByTanOfHalfDtheta = -(halfDtheta * transform.getRotation().getSin()) / cosMinusOne;
+      halfThetaByTanOfHalfDtheta = -(halfDtheta * transform.getTangent().getSin()) / cosMinusOne;
     }
 
     Translation2d translationPart = transform

@@ -68,6 +68,7 @@ public final class PratsTrajectoryUtil {
       // elements[i + 6] = state.poseMeters.getTangent().getRadians();
       elements[i + 6] = state.curvatureRadPerMeter;
     }
+    System.out.println("Trajectory created.");
     return elements;
   }
 

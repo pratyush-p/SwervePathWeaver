@@ -27,9 +27,9 @@ public class PratsTransform2d {
     // delta into a local delta (relative to the initial pose).
     m_translation = last.getTranslation()
         .minus(initial.getTranslation())
-        .rotateBy(initial.getRotation().unaryMinus());
+        .rotateBy(initial.getTangent().unaryMinus());
 
-    m_rotation = last.getRotation().minus(initial.getRotation());
+    m_rotation = last.getTangent().minus(initial.getTangent());
 
     m_tangent = last.getTangent().minus(initial.getTangent());
   }

@@ -15,16 +15,15 @@ import org.ejml.simple.SimpleMatrix;
  */
 public abstract class PratsSpline {
   private final int m_degree;
-  private Rotation2d m_rot;
+  private final Rotation2d m_rot = Rotation2d.fromRadians(4);
 
   /**
    * Constructs a spline with the given degree.
    *
    * @param degree The degree of the spline.
    */
-  PratsSpline(int degree, Rotation2d rot) {
+  PratsSpline(int degree) {
     m_degree = degree;
-    m_rot = rot;
   }
 
   /**

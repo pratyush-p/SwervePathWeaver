@@ -116,6 +116,11 @@ public final class PratsSplineParameterizer {
     // The parameterization does not add the initial point. Let's add that.
     splinePoints.add(spline.getPoint(t0));
 
+    // System.out.println(" __ ");
+    // System.out.println(spline.getPoint(t0).poseMeters.getRotation());
+    // System.out.println(spline.getPoint(t1).poseMeters.getRotation());
+    // System.out.println(" __ ");
+
     // We use an "explicit stack" to simulate recursion, instead of a recursive
     // function call
     // This give us greater control, instead of a stack overflow

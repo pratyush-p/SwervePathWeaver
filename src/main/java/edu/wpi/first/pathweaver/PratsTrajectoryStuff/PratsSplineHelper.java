@@ -36,8 +36,8 @@ public final class PratsSplineHelper {
       var controlVecA = getQuinticControlVector(scalar, p0);
       var controlVecB = getQuinticControlVector(scalar, p1);
 
-      splines[i] = new PratsQuinticHermiteSpline(controlVecA.x, controlVecB.x, controlVecA.y, controlVecB.y,
-          p0.getRotation(), p1.getRotation());
+      splines[i] = new PratsQuinticHermiteSpline(controlVecA.x, controlVecB.x, controlVecA.y, controlVecB.y);
+
     }
     return splines;
   }

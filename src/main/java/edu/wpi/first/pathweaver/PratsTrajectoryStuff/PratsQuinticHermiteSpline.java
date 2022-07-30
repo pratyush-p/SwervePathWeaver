@@ -32,9 +32,8 @@ public class PratsQuinticHermiteSpline extends PratsSpline {
       double[] xInitialControlVector,
       double[] xFinalControlVector,
       double[] yInitialControlVector,
-      double[] yFinalControlVector,
-      Rotation2d rot, Rotation2d rot2) {
-    super(5, rot);
+      double[] yFinalControlVector) {
+    super(5);
 
     // Populate the coefficients for the actual spline equations.
     // Row 0 is x coefficients
