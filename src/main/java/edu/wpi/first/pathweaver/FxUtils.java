@@ -54,6 +54,7 @@ public final class FxUtils {
 
   /**
    * Applies SUBCHILD_SELECTORS to the specified node.
+   * 
    * @param node The node to apply the classes to
    */
   public static void applySubchildClasses(Node node) {
@@ -63,9 +64,12 @@ public final class FxUtils {
   }
 
   /**
-   * Updates all SUBCHILD_SELECTORS for the given node to be enabled (if the correct index) or disabled.
+   * Updates all SUBCHILD_SELECTORS for the given node to be enabled (if the
+   * correct index) or disabled.
+   * 
    * @param node The node to enable/disable subchild pseudoclasses on
-   * @param idx The index of SUBCHILD_SELECTORS to set enabled. Use -1 to disable all.
+   * @param idx  The index of SUBCHILD_SELECTORS to set enabled. Use -1 to disable
+   *             all.
    */
   public static void enableSubchildSelector(Node node, int idx) {
     for (int i = 0; i < SUBCHILD_SELECTORS.size(); i++) {
@@ -74,7 +78,9 @@ public final class FxUtils {
   }
 
   /**
-   * Checks whether the item is a child of a child (exactly the child of a child of the root).
+   * Checks whether the item is a child of a child (exactly the child of a child
+   * of the root).
+   * 
    * @param view The treeview to check against
    * @param item The item to check
    * @return Whether this is a sub child
@@ -85,6 +91,7 @@ public final class FxUtils {
 
   /**
    * Gets the index of this item relative to its siblings.
+   * 
    * @param item The item to check
    * @return The child index of this item, 0 if it has no parent.
    */
@@ -98,7 +105,8 @@ public final class FxUtils {
 
   /**
    * Loads the main screen where you manipulate paths.
-   * @param scene The Scene of the current Pane.
+   * 
+   * @param scene  The Scene of the current Pane.
    * @param aClass getClass() of the calling class.
    */
   public static void loadMainScreen(Scene scene, Class aClass) {
@@ -107,7 +115,8 @@ public final class FxUtils {
       Stage primaryStage = (Stage) scene.getWindow();
       primaryStage.resizableProperty().setValue(true);
       primaryStage.setOnCloseRequest(value -> {
-        // Prompt the user to save all changed paths, consuming the event if they cancel the close
+        // Prompt the user to save all changed paths, consuming the event if they cancel
+        // the close
         if (SaveManager.getInstance().promptSaveAll()) {
           ProgramPreferences.getInstance().saveSizeAndPosition(primaryStage);
         } else {
@@ -125,6 +134,7 @@ public final class FxUtils {
 
   /**
    * Returns a TextFormatter for setting a TextField to only Numeric text.
+   * 
    * @return TextFormatter with only Numeric text.
    */
   public static TextFormatter<Object> onlyDoubleText() {
@@ -132,7 +142,9 @@ public final class FxUtils {
   }
 
   /**
-   * Returns a TextFormatter for setting a TextField to only positive Numeric text.
+   * Returns a TextFormatter for setting a TextField to only positive Numeric
+   * text.
+   * 
    * @return TextFormatter with only Numeric text.
    */
   public static TextFormatter<Object> onlyPositiveDoubleText() {
@@ -153,6 +165,7 @@ public final class FxUtils {
 
   /**
    * Asks user if they want to delete value.
+   * 
    * @param value The file to delete
    * @return True if user confirms deletion, false otherwise.
    */
@@ -169,11 +182,12 @@ public final class FxUtils {
     return false;
   }
 
-  public static void applyDarkMode(Alert alert){
-    final boolean darkIsOn = PathWeaver.mainScene.getStylesheets().contains(FxUtils.class.getResource("dark.css").toExternalForm());
-    if(darkIsOn) {
-        DialogPane dp = alert.getDialogPane();
-        dp.getStylesheets().add(FxUtils.class.getResource("dark.css").toExternalForm());
+  public static void applyDarkMode(Alert alert) {
+    final boolean darkIsOn = PathWeaver.mainScene.getStylesheets()
+        .contains(FxUtils.class.getResource("dark.css").toExternalForm());
+    if (darkIsOn) {
+      DialogPane dp = alert.getDialogPane();
+      dp.getStylesheets().add(FxUtils.class.getResource("dark.css").toExternalForm());
     }
-  } 
+  }
 }

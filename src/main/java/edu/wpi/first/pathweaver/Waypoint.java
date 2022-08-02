@@ -68,7 +68,7 @@ public class Waypoint {
 		field = ProjectPreferences.getInstance().getField();
 		var values = ProjectPreferences.getInstance().getValues();
 
-		robot = new Rectangle(values.getBumperLength() * field.getScale(), values.getBumperWidth() * field.getScale());
+		robot = new Rectangle(values.getBumperWidth() * field.getScale(), values.getBumperLength() * field.getScale());
 		setupRobot();
 
 		icon = new Polygon(0.0, SIZE / 3, SIZE, 0.0, 0.0, -SIZE / 3);

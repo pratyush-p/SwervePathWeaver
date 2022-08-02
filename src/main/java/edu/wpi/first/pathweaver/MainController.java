@@ -394,8 +394,9 @@ public class MainController {
       Pane root = FXMLLoader.load(getClass().getResource("createProject.fxml"));
       Scene scene = fieldDisplay.getScene();
       Stage primaryStage = (Stage) scene.getWindow();
+      primaryStage.setHeight(700);
       primaryStage.setMaximized(false);
-      primaryStage.setResizable(false);
+      primaryStage.setResizable(true);
       scene.setRoot(root);
     } catch (IOException e) {
       LOGGER.log(Level.WARNING, "Couldn't load create project screen", e);

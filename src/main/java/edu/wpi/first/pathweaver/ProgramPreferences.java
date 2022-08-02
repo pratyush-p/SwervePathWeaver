@@ -40,7 +40,7 @@ public class ProgramPreferences {
 					"Preferences have been reset due to file corruption. You may reimport your projects with the 'Import Project' button");
 			((Stage) alert.getDialogPane().getScene().getWindow()).setAlwaysOnTop(true);
 			alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-			
+
 			alert.show();
 
 			values = new Values();
@@ -76,7 +76,7 @@ public class ProgramPreferences {
 	 * Adds a project to the beginning of the list of recent projects.
 	 *
 	 * @param path
-	 *            Path to the project.
+	 *             Path to the project.
 	 */
 	public void addProject(String path) {
 		values.addProject(path);
@@ -97,18 +97,16 @@ public class ProgramPreferences {
 	 * previous preferences.
 	 *
 	 * @param primaryStage
-	 *            The Stage to set the values for.
+	 *                     The Stage to set the values for.
 	 */
 	public void setSizeAndPosition(Stage primaryStage) {
 		if (values.getWidth() == 0 || values.getHeight() == 0 || values.getPosX() == 0 || values.getPosY() == 0) {
-			primaryStage.setWidth(1024);
+			primaryStage.setWidth(2000);
 			primaryStage.setHeight(768);
 		} else {
-			primaryStage.setWidth(values.getWidth());
-			primaryStage.setHeight(values.getHeight());
-			primaryStage.setX(values.getPosX());
-			primaryStage.setY(values.getPosY());
-			primaryStage.setMaximized(values.isMaximized());
+			primaryStage.setX(0);
+			primaryStage.setY(0);
+			primaryStage.setMaximized(true);
 		}
 	}
 
@@ -116,7 +114,8 @@ public class ProgramPreferences {
 	 * Saves the current size, position and maximized values to preferences file.
 	 *
 	 * @param primaryStage
-	 *            The stage to save size, position, and maximized values for.
+	 *                     The stage to save size, position, and maximized values
+	 *                     for.
 	 */
 	public void saveSizeAndPosition(Stage primaryStage) {
 		values.setSizeAndPosition(primaryStage.getWidth(), primaryStage.getHeight(), primaryStage.getX(),

@@ -18,6 +18,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 @SuppressWarnings("PMD.UnusedPrivateMethod")
 public class WelcomeController {
