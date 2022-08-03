@@ -198,10 +198,16 @@ public final class PratsTrajectoryGenerator {
 
   public static double sCurve(double range, double totalDomain, double curDomain) {
     double x = curDomain / totalDomain;
-    double k = 10.0;
-    double y = (1 / (1 + Math.pow(Math.E, (-k * (x - .5)))));
+    double k = 4.5;
+    // k is the amount of curve desired. k > 0 always. k = 4.5 recommended.
+    // A k of 0.0->01 is basically linear. A k larger than 7.75 is too much.
+    double y = ((.5 / sCurve2(1, k)) * sCurve2((2 * x) - 1, k)) + .5;
     // Uses sigmoid ease function for easing in and out of rotations for waypoints.
     return y * range;
+  }
+
+  public static double sCurve2(double t, double a) {
+    return (1 / (1 + (Math.pow(Math.E, (-a * t))))) - 0.5;
   }
 
   public static double findDegDist(double a, double b) {
