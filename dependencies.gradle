@@ -45,7 +45,7 @@ dependencies {
     testImplementation(junitJupiter("junit-jupiter-params"))
 }
 
-ext.projectMainClass = "edu.wpi.first.pathweaver.Main"
+ext.projectMainClass = "edu.wpi.first.talontrack.Main"
 
 spotbugsMain.enabled = false
 

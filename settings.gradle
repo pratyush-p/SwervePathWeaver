@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "PathWeaver"
+rootProject.name = "talontrack"
