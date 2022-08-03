@@ -193,11 +193,15 @@ public final class PratsTrajectoryGenerator {
     double pointOneDeg = finalizedSplinePoints.get(smallerIndex).poseMeters.getRotation().getDegrees();
     double pointTwoDeg = finalizedSplinePoints.get(biggerIndex).poseMeters.getRotation().getDegrees();
     double range = findDegDist(pointOneDeg, pointTwoDeg);
-    double rangePerIndex = range / indexDifferenceRange;
-    for (int _k = 0; _k < indexDifferencePoint; _k++) {
-      returnVal += rangePerIndex;
-    }
-    return returnVal;
+    return returnVal += sCurve(range, indexDifferenceRange, indexDifferencePoint);
+  }
+
+  public static double sCurve(double range, double totalDomain, double curDomain) {
+    double x = curDomain / totalDomain;
+    double k = 10.0;
+    double y = (1 / (1 + Math.pow(Math.E, (-k * (x - .5)))));
+    // Uses sigmoid ease function for easing in and out of rotations for waypoints.
+    return y * range;
   }
 
   public static double findDegDist(double a, double b) {
