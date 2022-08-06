@@ -1,8 +1,10 @@
 package edu.wpi.first.talontrack;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +14,7 @@ import edu.wpi.first.talontrack.path.Path;
 import edu.wpi.first.talontrack.path.wpilib.WpilibPath;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -26,6 +29,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 //With the creation of a project many of these functions should be moved out of here
@@ -40,6 +44,10 @@ public class MainController {
   private TreeView<String> autons;
   @FXML
   private TreeView<String> paths;
+  @FXML
+  private TreeView<String> commandTemplates;
+  @FXML
+  private TreeView<String> commandInstances;
 
   @FXML
   private Pane fieldDisplay;
@@ -52,26 +60,65 @@ public class MainController {
   private EditWaypointController editWaypointController;
 
   @FXML
-  private TitledPane yee;
+  private GridPane editCommand;
+  @FXML
+  private EditCommandController editCommandController;
+
+  @FXML
+  private TitledPane commandPropertiesTab;
+  @FXML
+  private TitledPane waypointPropertiesTab;
+  @FXML
+  private TitledPane autonPane;
+  @FXML
+  private TitledPane pathPane;
+  @FXML
+  private TitledPane commandTempPane;
+  @FXML
+  private TitledPane commandInstPane;
+  @FXML
+  private Button buildBtn;
 
   private String directory = ProjectPreferences.getInstance().getDirectory();
   private final String pathDirectory = directory + "/Paths/";
   private final String autonDirectory = directory + "/Autos/";
+  private final String commandDirectory = directory + "/"
+      + ProjectPreferences.getInstance().getValues().getCommandDir();
   private final String groupDirectory = directory + "/Groups/"; // Legacy dir for backwards compatibility
   private final TreeItem<String> autonRoot = new TreeItem<>("Autons");
   private final TreeItem<String> pathRoot = new TreeItem<>("Paths");
+  private final TreeItem<String> commandTemplateRoot = new TreeItem<>("Templates");
+  private final TreeItem<String> commandInstanceRoot = new TreeItem<>("Instances");
+  private String specialAlertString;
+  private boolean autonSelected;
 
   private TreeItem<String> selected = null;
+  private TreeItem<String> selectedCommand = null;
 
   private Field field;
 
+  private List<CommandTemplate> commandTemplatesArr = new ArrayList<CommandTemplate>();
+
+  private static boolean pathBuilt = false;
+
   @FXML
   private void initialize() {
+    setPaneExpansions();
+
+    commandPropertiesTab.setOnMouseClicked(event -> setPaneExpansions());
+    waypointPropertiesTab.setOnMouseClicked(event -> setPaneExpansions());
+    autonPane.setOnMouseClicked(event -> setPaneExpansions());
+    pathPane.setOnMouseClicked(event -> setPaneExpansions());
+    commandTempPane.setOnMouseClicked(event -> setPaneExpansions());
+    commandInstPane.setOnMouseClicked(event -> setPaneExpansions());
+
     field = ProjectPreferences.getInstance().getField();
     setupDrag();
 
     setupTreeView(autons, autonRoot, FxUtils.menuItem("New Autonomous...", event -> createAuton()));
     setupTreeView(paths, pathRoot, FxUtils.menuItem("New Path...", event -> createPath()));
+    setupTreeView(commandTemplates, commandTemplateRoot,
+        FxUtils.menuItem("New Path...", event -> System.out.print("dawd")));
 
     // Copying files from the old directory name to the new one to maintain
     // backwards compatibility
@@ -83,16 +130,29 @@ public class MainController {
 
     MainIOUtil.setupItemsInDirectory(pathDirectory, pathRoot);
     MainIOUtil.setupItemsInDirectory(autonDirectory, autonRoot);
+    MainIOUtil.setupItemsInDirectory(commandDirectory, commandTemplateRoot);
 
     setupClickablePaths();
     setupClickableAutons();
+    setupClickableCommandTemplates();
     loadAllAutons();
 
     autons.setEditable(true);
     paths.setEditable(true);
+    commandTemplates.setEditable(false);
     setupEditable();
 
+    if (pathBuilt) {
+      fieldDisplayController.setPathList();
+      autonSelected = true;
+    }
+
     editWaypointController.bindToWaypoint(CurrentSelections.curWaypointProperty(), fieldDisplayController);
+    editCommandController.bindToCommand(CurrentSelections.curCommandTemplateProperty(), fieldDisplayController);
+    buildBtn.setText(pathBuilt ? "Build Commands" : "Build Paths");
+    setPathBuilt(pathBuilt);
+
+    importCommands();
   }
 
   private void setupTreeView(TreeView<String> treeView, TreeItem<String> treeRoot, MenuItem newItem) {
@@ -120,7 +180,9 @@ public class MainController {
       saveAllAutons();
       loadAllAutons();
     });
-    paths.setOnEditStart(event -> SaveManager.getInstance().promptSaveAll(false));
+    paths.setOnEditStart(event -> {
+      SaveManager.getInstance().promptSaveAll(false);
+    });
     paths.setOnEditCommit(event -> {
       MainIOUtil.rename(pathDirectory, event.getTreeItem(), event.getNewValue());
       renameAllPathInstances(event.getTreeItem(), event.getNewValue());
@@ -253,6 +315,7 @@ public class MainController {
           return;
         }
         selected = newValue;
+        autonSelected = false;
         if (newValue != pathRoot && newValue != null) {
           fieldDisplayController.removeAllPath();
           fieldDisplayController.addPath(pathDirectory, newValue);
@@ -261,6 +324,61 @@ public class MainController {
       }
     };
     paths.getSelectionModel().selectedItemProperty().addListener(selectionListener);
+  }
+
+  private void setupClickableCommandTemplates() {
+    ChangeListener<TreeItem<String>> selectionListener = new ChangeListener<>() {
+      @Override
+      public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
+          TreeItem<String> newValue) {
+        selectedCommand = newValue;
+        if (newValue != commandTemplateRoot && newValue != null) {
+          for (CommandTemplate comTemp : commandTemplatesArr) {
+            if (selectedCommand.getValue() == comTemp.getName()) {
+              CurrentSelections.setCurCommandTemplate(comTemp);
+            }
+          }
+        }
+      }
+    };
+    commandTemplates.getSelectionModel().selectedItemProperty().addListener(selectionListener);
+  }
+
+  @FXML
+  private void previewJavaFile() {
+    for (CommandTemplate comTemp : commandTemplatesArr) {
+      if (selectedCommand.getValue() == comTemp.getName()) {
+        // System.out.println(comTemp.getCommandPreview());
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        FxUtils.applyDarkMode(alert);
+        alert.setResizable(true);
+        alert.setHeaderText("Command Preview");
+        alert.setTitle(comTemp.getName());
+        alert.setContentText(comTemp.getCommandPreview());
+
+        alert.show();
+      }
+    }
+  }
+
+  @FXML
+  private void info() {
+    for (CommandTemplate comTemp : commandTemplatesArr) {
+      if (selectedCommand.getValue() == comTemp.getName()) {
+        HashMap<String, String> map = comTemp.getParameterMap();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        specialAlertString = new String("Parameters (Name - Type) :\n");
+        map.forEach((a, b) -> {
+          specialAlertString = specialAlertString.concat(a + " - " + b + "\n");
+        });
+        FxUtils.applyDarkMode(alert);
+        alert.setResizable(true);
+        alert.setHeaderText("Command Info");
+        alert.setTitle(comTemp.getName());
+        alert.setContentText(specialAlertString);
+        alert.show();
+      }
+    }
   }
 
   private void setupClickableAutons() {
@@ -272,6 +390,8 @@ public class MainController {
           return;
         }
         selected = newValue;
+        autonSelected = newValue.getParent() == autonRoot ? true : false;
+        // autonSelected = true;
         fieldDisplayController.removeAllPath();
         if (newValue != autonRoot) {
           if (newValue.getParent() == autonRoot) { // is an auton with children
@@ -288,6 +408,11 @@ public class MainController {
       }
     };
     autons.getSelectionModel().selectedItemProperty().addListener(selectionListener);
+  }
+
+  private void setupAutonFromSelection() {
+    fieldDisplayController.setPathList(CurrentSelections.getCurPathlist());
+    autonSelected = true;
   }
 
   private boolean validPathName(String oldName, String newName) {
@@ -347,34 +472,54 @@ public class MainController {
   @FXML
 
   private void buildPaths() {
-    if (!SaveManager.getInstance().promptSaveAll()) {
-      return;
-    }
+    if (autonSelected) {
+      if (!pathBuilt) {
+        if (!SaveManager.getInstance().promptSaveAll()) {
+          return;
+        }
 
-    java.nio.file.Path output = ProjectPreferences.getInstance().getOutputDir().toPath();
-    try {
-      Files.createDirectories(output);
-    } catch (IOException e) {
-      LOGGER.log(Level.WARNING, "Could not export to " + output, e);
-    }
-    for (TreeItem<String> pathName : pathRoot.getChildren()) {
-      Path path = PathIOUtil.importPath(pathDirectory, pathName.getValue());
+        java.nio.file.Path output = ProjectPreferences.getInstance().getOutputDir().toPath();
+        try {
+          Files.createDirectories(output);
+        } catch (IOException e) {
+          LOGGER.log(Level.WARNING, "Could not export to " + output, e);
+        }
+        for (TreeItem<String> pathName : pathRoot.getChildren()) {
+          Path path = PathIOUtil.importPath(pathDirectory, pathName.getValue());
 
-      java.nio.file.Path pathNameFile = output.resolve(path.getPathNameNoExtension());
+          java.nio.file.Path pathNameFile = output.resolve(path.getPathNameNoExtension());
 
-      if (!path.getSpline().writeToFile(pathNameFile)) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
+          if (!path.getSpline().writeToFile(pathNameFile)) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            FxUtils.applyDarkMode(alert);
+            alert.setTitle("Path export failure!");
+            alert.setContentText("Could not export to: " + output.toAbsolutePath());
+          }
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         FxUtils.applyDarkMode(alert);
-        alert.setTitle("Path export failure!");
-        alert.setContentText("Could not export to: " + output.toAbsolutePath());
+        alert.setTitle("Paths exported!");
+        alert.setHeaderText("Path Built");
+        alert.setContentText("Paths exported to: " + output.toAbsolutePath());
+        alert.show();
       }
-    }
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    FxUtils.applyDarkMode(alert);
-    alert.setTitle("Paths exported!");
-    alert.setContentText("Paths exported to: " + output.toAbsolutePath());
 
-    alert.show();
+      pathBuilt = !pathBuilt;
+      setPaneExpansions();
+      buildBtn.setText(pathBuilt ? "Build Commands" : "Build Paths");
+      selected = pathBuilt ? null : selected;
+      selectedCommand = !pathBuilt ? null : selectedCommand;
+      fieldDisplayController.getPathList().forEach(pl -> pl.getWaypoints().forEach(w -> w.setLineVisible(!pathBuilt)));
+      CurrentSelections.setCurPathlist(fieldDisplayController.getPathList());
+    } else if (!autonSelected && !pathBuilt) {
+      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+      FxUtils.applyDarkMode(alert);
+      alert.setTitle("Auton not selected.");
+      alert.setHeaderText("Build Failed");
+      alert.setContentText("Select an Autonomous Routine.");
+      alert.show();
+    }
+
   }
 
   @FXML
@@ -394,5 +539,28 @@ public class MainController {
 
   public void setDirectory(String directory) {
     this.directory = directory;
+  }
+
+  private void importCommands() {
+    for (TreeItem<String> child : commandTemplateRoot.getChildren()) {
+      commandTemplatesArr.add(new CommandTemplate(commandDirectory, child.getValue(), child));
+    }
+  }
+
+  private void setPaneExpansions() {
+    commandPropertiesTab.setExpanded(pathBuilt);
+    waypointPropertiesTab.setExpanded(!pathBuilt);
+    autonPane.setExpanded(!pathBuilt);
+    pathPane.setExpanded(!pathBuilt);
+    commandTempPane.setExpanded(pathBuilt);
+    commandInstPane.setExpanded(pathBuilt);
+  }
+
+  public static boolean getPathBuilt() {
+    return pathBuilt;
+  }
+
+  public static void setPathBuilt(boolean b) {
+    pathBuilt = b;
   }
 }

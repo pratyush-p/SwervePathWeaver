@@ -101,8 +101,8 @@ public class ProgramPreferences {
 	 */
 	public void setSizeAndPosition(Stage primaryStage) {
 		if (values.getWidth() == 0 || values.getHeight() == 0 || values.getPosX() == 0 || values.getPosY() == 0) {
-			primaryStage.setWidth(2000);
-			primaryStage.setHeight(768);
+			primaryStage.setWidth(1280);
+			primaryStage.setHeight(720);
 		} else {
 			primaryStage.setX(0);
 			primaryStage.setY(0);

@@ -300,6 +300,11 @@ public class Waypoint {
 		return headingY;
 	}
 
+	public void setLineVisible(boolean visible) {
+		tangentLine.setVisible(visible);
+		headingLine.setVisible(visible);
+	}
+
 	/**
 	 * Converts the unit system of a this Waypoint.
 	 *

@@ -181,6 +181,8 @@ public class EditWaypointController {
         .addListener((listener, oldValue, newValue) -> {
           if (newValue == null) {
             SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
+          } else if (wp.getValue() == null) {
+            SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
           } else if (wp.getValue().isLockTangent() != newValue) {
             SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
           }

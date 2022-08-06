@@ -14,39 +14,60 @@
             <fx:include fx:id="fieldDisplay" source="fieldDisplay.fxml" />
          </center>
          <bottom>
-            <TitledPane text="Waypoint Properties" BorderPane.alignment="CENTER">
-               <fx:include fx:id="editWaypoint" source="editWaypoint.fxml" />
-            </TitledPane>
+            <VBox BorderPane.alignment="CENTER">
+               <TitledPane text="Command Properties" fx:id="commandPropertiesTab">
+                  <fx:include fx:id="editCommand" source="editCommand.fxml" />
+               </TitledPane>
+               <TitledPane text="Waypoint Properties" fx:id="waypointPropertiesTab">
+                  <fx:include fx:id="editWaypoint" source="editWaypoint.fxml" />
+               </TitledPane>
+            </VBox>
          </bottom>
       </BorderPane>
    </center>
    <right>
       <VBox BorderPane.alignment="CENTER">
-         <TitledPane animated="false" collapsible="false" text="Autonomous Routines">
-            <TreeView fx:id="autons" />
+         <TitledPane text="Autonomous Routines" fx:id="autonPane">
+            <VBox BorderPane.alignment="CENTER">
+               <TreeView fx:id="autons" VBox.vgrow="ALWAYS" />
+               <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
+                  <items>
+                     <Button mnemonicParsing="false" onAction="#createAuton" text="+" />
+                     <Button mnemonicParsing="false" onAction="#deleteAuton" text="-" />
+                  </items>
+               </ToolBar>
+            </VBox>
          </TitledPane>
-         <ToolBar prefHeight="40.0">
-            <items>
-               <Button mnemonicParsing="false" onAction="#createAuton" text="+" />
-               <Button mnemonicParsing="false" onAction="#deleteAuton" text="-" />
-            </items>
-         </ToolBar>
-         <TitledPane animated="false" collapsible="false" text="Paths" VBox.vgrow="ALWAYS">
-            <TreeView fx:id="paths" />
+         <TitledPane text="Paths" VBox.vgrow="ALWAYS" fx:id="pathPane">
+            <VBox BorderPane.alignment="CENTER">
+               <TreeView fx:id="paths" VBox.vgrow="ALWAYS" />
+               <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
+                  <Button mnemonicParsing="false" onAction="#createPath" text="+" />
+                  <Button mnemonicParsing="false" onAction="#delete" text="-" />
+               </ToolBar>
+            </VBox>
          </TitledPane>
-         <ToolBar prefHeight="40.0" VBox.vgrow="NEVER">
-            <Button mnemonicParsing="false" onAction="#createPath" text="+" />
-            <Button mnemonicParsing="false" onAction="#delete" text="-" />
-         </ToolBar>
-         <TitledPane animated="false" collapsible="false" text="Commands" VBox.vgrow="ALWAYS">
-            <TreeView fx:id="commands" />
+         <TitledPane text="Command Templates" VBox.vgrow="ALWAYS" fx:id="commandTempPane">
+            <VBox BorderPane.alignment="CENTER">
+               <TreeView fx:id="commandTemplates" VBox.vgrow="ALWAYS" />
+               <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
+                  <Button mnemonicParsing="false" text="Instantiate" />
+                  <Button mnemonicParsing="false" onAction="#previewJavaFile" text="Preview" />
+                  <Button mnemonicParsing="false" onAction="#info" text="Info" />
+               </ToolBar>
+            </VBox>
          </TitledPane>
-         <ToolBar prefHeight="40.0" VBox.vgrow="NEVER">
-            <Button mnemonicParsing="false" onAction="#createPath" text="+" />
-            <Button mnemonicParsing="false" onAction="#delete" text="-" />
-         </ToolBar>
+         <TitledPane text="Command Instances" VBox.vgrow="ALWAYS" fx:id="commandInstPane">
+            <VBox BorderPane.alignment="CENTER">
+               <TreeView fx:id="commandInstances" VBox.vgrow="ALWAYS" />
+               <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
+                  <Button mnemonicParsing="false" text="Duplicate" />
+                  <Button mnemonicParsing="false" text="Remove" />
+               </ToolBar>
+            </VBox>
+         </TitledPane>
          <ToolBar prefHeight="50.0" prefWidth="200.0" minHeight="50.0">
-            <Button mnemonicParsing="false" onAction="#buildPaths" text="Build Paths" prefHeight="35.0" prefWidth="110.0" />
+            <Button mnemonicParsing="false" onAction="#buildPaths" text="Build Paths" prefHeight="35.0" prefWidth="110.0" fx:id="buildBtn" />
             <Button mnemonicParsing="false" onAction="#editProject" text="Edit Project" prefHeight="35.0" prefWidth="110.0" />
          </ToolBar>
       </VBox>

@@ -1,8 +1,10 @@
 package edu.wpi.first.talontrack.global;
 
+import edu.wpi.first.talontrack.CommandTemplate;
 import edu.wpi.first.talontrack.Waypoint;
 import edu.wpi.first.talontrack.path.Path;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 
 /**
  * The class holding the global state for the currently selected objects.
@@ -15,6 +17,8 @@ public final class CurrentSelections {
     private static SimpleObjectProperty<Waypoint> curSplineEnd = new SimpleObjectProperty<>();
     private static SimpleObjectProperty<Waypoint> curWaypoint = new SimpleObjectProperty<>();
     private static SimpleObjectProperty<Path> curPath = new SimpleObjectProperty<>();
+    private static SimpleObjectProperty<CommandTemplate> curCommandTemp = new SimpleObjectProperty<>();
+    private static SimpleObjectProperty<ObservableList<Path>> curPathList = new SimpleObjectProperty<>();
 
     private CurrentSelections() {
         throw new UnsupportedOperationException("This class holds global state!");
@@ -67,4 +71,29 @@ public final class CurrentSelections {
     public static void setCurPath(Path curPath) {
         CurrentSelections.curPath.set(curPath);
     }
+
+    public static CommandTemplate getCurCommandTemplate() {
+        return curCommandTemp.get();
+    }
+
+    public static SimpleObjectProperty<CommandTemplate> curCommandTemplateProperty() {
+        return curCommandTemp;
+    }
+
+    public static void setCurCommandTemplate(CommandTemplate curCommandTemplate) {
+        CurrentSelections.curCommandTemp.set(curCommandTemplate);
+    }
+
+    public static ObservableList<Path> getCurPathlist() {
+        return curPathList.get();
+    }
+
+    public static SimpleObjectProperty<ObservableList<Path>> curPathlistProperty() {
+        return curPathList;
+    }
+
+    public static void setCurPathlist(ObservableList<Path> curPathlist) {
+        CurrentSelections.curPathList.set(curPathlist);
+    }
+
 }

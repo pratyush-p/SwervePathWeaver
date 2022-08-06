@@ -12,6 +12,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+
 import javafx.scene.control.TreeItem;
 
 public final class MainIOUtil {

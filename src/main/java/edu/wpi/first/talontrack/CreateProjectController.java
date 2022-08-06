@@ -38,6 +38,8 @@ public class CreateProjectController {
 	@FXML
 	private Button browseOutput;
 	@FXML
+	private Button browseCommand;
+	@FXML
 	private Button create;
 	@FXML
 	private Button cancel;
@@ -47,6 +49,8 @@ public class CreateProjectController {
 	private TextField directory;
 	@FXML
 	private TextField outputDirectory;
+	@FXML
+	private TextField commandDirectory;
 	@FXML
 	private TextField maxVelocity;
 	@FXML
@@ -69,6 +73,8 @@ public class CreateProjectController {
 	private Label browseLabel;
 	@FXML
 	private Label outputLabel;
+	@FXML
+	private Label commandLabel;
 	@FXML
 	private Label velocityLabel;
 	@FXML
@@ -106,6 +112,7 @@ public class CreateProjectController {
 
 		var directoryControls = List.of(browseLabel, directory, browse);
 		var outputControls = List.of(outputLabel, outputDirectory, browseOutput);
+		var commandControls = List.of(commandLabel, commandDirectory, browseCommand);
 		var velocityControls = List.of(velocityLabel, maxVelocity, velocityUnits);
 		var accelerationControls = List.of(accelerationLabel, maxAcceleration, accelerationUnits);
 		var trackWidthControls = List.of(trackWidthLabel, trackWidth, trackWidthUnits);
@@ -175,6 +182,9 @@ public class CreateProjectController {
 						+ "If it is the root folder of your FRC robot project,\nthe paths will automatically be copied to the "
 						+ "robot at deploy time.\nDefault: will search relative to your project directory,\n"
 						+ "attempting to find deploy folder.")));
+		commandControls
+				.forEach(control -> control.setTooltip(
+						new Tooltip("The directory to get Commands from. Default assumes that project directory is in project.")));
 		velocityControls
 				.forEach(control -> control.setTooltip(new Tooltip("The maximum velocity your robot can travel.")));
 		velocityUnits.textProperty()
@@ -196,7 +206,7 @@ public class CreateProjectController {
 				control -> control.setTooltip(new Tooltip("The distance between the front and back edges of the bumper.")));
 		bumperLengthUnits.textProperty().bind(lengthUnit.map(SimpleUnitFormat.getInstance()::format));
 		// Show longer text for an extended period of time
-		Stream.of(directoryControls, outputControls).flatMap(List::stream)
+		Stream.of(directoryControls, outputControls, commandControls).flatMap(List::stream)
 				.forEach(control -> control.getTooltip().setShowDuration(Duration.seconds(10)));
 		Stream.of(directoryControls, outputControls, velocityControls, accelerationControls,
 				trackWidthControls, wheelBaseControls, bumperWidthControls, bumperLengthControls).flatMap(List::stream)
@@ -213,6 +223,7 @@ public class CreateProjectController {
 	private void setupCreateProject() {
 		directory.setText("");
 		outputDirectory.setText("");
+		commandDirectory.setText("");
 		create.setText("Create Project");
 		title.setText("Create Project...");
 		cancel.setText("Cancel");
@@ -245,6 +256,16 @@ public class CreateProjectController {
 			outputPath = directory.toPath().relativize(new File(outputString.trim()).toPath()).toString().replace("\\",
 					"/");
 		}
+		String commandString = commandDirectory.getText();
+		String commandPath = commandString;
+		boolean newcommand = !editing
+				|| !Objects.equals(commandString, ProjectPreferences.getInstance().getValues().getCommandDir());
+		if (commandString != null && !commandString.isEmpty() && newcommand) {
+			// Find the relative path for the command directory to the project directory,
+			// using / file separators
+			commandPath = directory.toPath().relativize(new File(commandString.trim()).toPath()).toString().replace("\\",
+					"/");
+		}
 		ProgramPreferences.getInstance().addProject(directory.getAbsolutePath());
 		String lengthUnit = length.getValue().getName();
 		String exportUnit = export.getValue().getName();
@@ -256,7 +277,7 @@ public class CreateProjectController {
 		double bumperLengthDistance = Double.parseDouble(bumperLength.getText());
 		ProjectPreferences.Values values = new ProjectPreferences.Values(lengthUnit, exportUnit, velocityMax,
 				accelerationMax, trackWidthDistance, wheelBaseDistance, bumperWidthDistance, bumperLengthDistance,
-				game.getValue().getName(), outputPath);
+				game.getValue().getName(), outputPath, commandPath);
 		ProjectPreferences prefs = ProjectPreferences.getInstance(directory.getAbsolutePath());
 		prefs.setValues(values);
 		editing = false;
@@ -271,6 +292,11 @@ public class CreateProjectController {
 	@FXML
 	private void browseOutput() {
 		browse(outputDirectory);
+	}
+
+	@FXML
+	private void browseCommand() {
+		browse(commandDirectory);
 	}
 
 	private void browse(TextField location) {
@@ -293,6 +319,7 @@ public class CreateProjectController {
 		ProjectPreferences.Values values = ProjectPreferences.getInstance().getValues();
 		directory.setText(ProjectPreferences.getInstance().getDirectory());
 		outputDirectory.setText(ProjectPreferences.getInstance().getValues().getOutputDir());
+		commandDirectory.setText(ProjectPreferences.getInstance().getValues().getCommandDir());
 		create.setText("Save Project");
 		title.setText("Edit Project");
 		cancel.setText("Select Project");

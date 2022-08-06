@@ -107,7 +107,7 @@ public class ProjectPreferences {
 
 	private void setDefaults() {
 		values = new Values("FOOT", "Always Meters", 10.0, 60.0, 2.0, 2.0, 2.0, 2.0, Game.INFINTE_RECHARGE_2020.getName(),
-				null);
+				null, null);
 		updateValues();
 	}
 
@@ -208,6 +208,17 @@ public class ProjectPreferences {
 		}
 	}
 
+	public File getCommandDir() {
+		if (values.getCommandDir() == null) {
+			File parentDirectory = new File(directory).getParentFile();
+			return getCommandDir(parentDirectory);
+		} else {
+			File command = new File(directory, values.getCommandDir());
+			System.out.print("obj2");
+			return getCommandDir(command);
+		}
+	}
+
 	/**
 	 * Returns the output directory relative to a specified directory. If the
 	 * directory is an FRC project, it returns the proper deploy directory.
@@ -225,8 +236,22 @@ public class ProjectPreferences {
 		}
 	}
 
+	private File getCommandDir(File dir) {
+		if (isFRCProject(dir)) {
+			return getPullCMDDirectory(dir);
+		} else {
+			System.out.println(dir.getPath());
+			return new File(dir, "output");
+			// return getPullCMDDirectory(dir);
+		}
+	}
+
 	private File getDeployDirectory(File directory) {
 		return new File(directory, "src/main/deploy/paths");
+	}
+
+	private File getPullCMDDirectory(File directory) {
+		return new File(directory, "src/main/java/frc/robot/commands");
 	}
 
 	private boolean isFRCProject(File directory) {
@@ -254,6 +279,7 @@ public class ProjectPreferences {
 		private final double bumperLength;
 		private String gameName;
 		private final String outputDir;
+		private final String commandDir;
 
 		/**
 		 * Constructor for Values of ProjectPreferences.
@@ -276,7 +302,7 @@ public class ProjectPreferences {
 		 */
 		public Values(String lengthUnit, String exportUnit, double maxVelocity, double maxAcceleration,
 				double trackWidth, double wheelBase, double bumperWidth, double bumperLength, String gameName,
-				String outputDir) {
+				String outputDir, String commandDir) {
 			this.lengthUnit = lengthUnit;
 			this.exportUnit = exportUnit;
 			this.maxVelocity = maxVelocity;
@@ -287,6 +313,7 @@ public class ProjectPreferences {
 			this.bumperLength = bumperLength;
 			this.gameName = gameName;
 			this.outputDir = outputDir;
+			this.commandDir = commandDir;
 		}
 
 		public Unit<Length> getLengthUnit() {
@@ -327,6 +354,10 @@ public class ProjectPreferences {
 
 		public String getOutputDir() {
 			return outputDir;
+		}
+
+		public String getCommandDir() {
+			return commandDir;
 		}
 	}
 }

@@ -55,22 +55,7 @@ public final class SaveManager {
    */
   public boolean promptSaveAll(boolean allowCancel) {
     for (Path path : paths) {
-      Alert alert = new Alert(Alert.AlertType.NONE);
-      FxUtils.applyDarkMode(alert);
-      alert.setTitle(path.getPathName() + " has been modified");
-      alert.setContentText("Save " + path.getPathName() + "?");
-      alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-      if (allowCancel) {
-        alert.getButtonTypes().add(ButtonType.CANCEL);
-      }
-      Optional<ButtonType> buttonType = alert.showAndWait();
-      if (buttonType.isPresent()) {
-        if (buttonType.get() == ButtonType.YES) {
-          saveChange(path, false);
-        } else if (buttonType.get() == ButtonType.CANCEL) {
-          return false;
-        }
-      }
+      saveChange(path, false);
     }
     paths.clear(); // User has taken action on all paths
     return true;

@@ -2,6 +2,7 @@ package edu.wpi.first.talontrack.global;
 
 import edu.wpi.first.talontrack.DataFormats;
 import edu.wpi.first.talontrack.FieldDisplayController;
+import edu.wpi.first.talontrack.MainController;
 import edu.wpi.first.talontrack.SaveManager;
 import edu.wpi.first.talontrack.Waypoint;
 import edu.wpi.first.talontrack.path.Path;
@@ -43,24 +44,27 @@ public class DragHandler {
   }
 
   private void handleDrag(DragEvent event) {
-    Dragboard dragboard = event.getDragboard();
-    Waypoint wp = CurrentSelections.getCurWaypoint();
-    Path path = CurrentSelections.getCurPath();
-    event.acceptTransferModes(TransferMode.MOVE);
-    if (dragboard.hasContent(DataFormats.WAYPOINT)) {
-      if (isShiftDown) {
-        handlePathMoveDrag(event, path, wp);
-      } else {
-        handleWaypointDrag(event, path, wp);
+    if (!MainController.getPathBuilt()) {
+      Dragboard dragboard = event.getDragboard();
+      Waypoint wp = CurrentSelections.getCurWaypoint();
+      Path path = CurrentSelections.getCurPath();
+      event.acceptTransferModes(TransferMode.MOVE);
+      if (dragboard.hasContent(DataFormats.WAYPOINT)) {
+        if (isShiftDown) {
+          handlePathMoveDrag(event, path, wp);
+        } else {
+          handleWaypointDrag(event, path, wp);
+        }
+      } else if (dragboard.hasContent(DataFormats.CONTROL_VECTOR)) {
+        handleVectorDrag(event, path, wp);
+      } else if (dragboard.hasContent(DataFormats.HEADING)) {
+        handleHeadingDrag(event, path, wp);
+      } else if (dragboard.hasContent(DataFormats.SPLINE)) {
+        handleSplineDrag(event, path, wp);
       }
-    } else if (dragboard.hasContent(DataFormats.CONTROL_VECTOR)) {
-      handleVectorDrag(event, path, wp);
-    } else if (dragboard.hasContent(DataFormats.HEADING)) {
-      handleHeadingDrag(event, path, wp);
-    } else if (dragboard.hasContent(DataFormats.SPLINE)) {
-      handleSplineDrag(event, path, wp);
+      event.consume();
     }
-    event.consume();
+
   }
 
   private void setupDrag() {

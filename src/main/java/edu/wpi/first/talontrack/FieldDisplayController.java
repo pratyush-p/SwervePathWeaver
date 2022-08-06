@@ -126,6 +126,18 @@ public class FieldDisplayController {
         return newPath;
     }
 
+    public ObservableList<Path> getPathList() {
+        return pathList;
+    }
+
+    public void setPathList(ObservableList<Path> pL) {
+        pathList.setAll(pL);
+    }
+
+    public void setPathList() {
+        pathList.setAll(CurrentSelections.getCurPathlist());
+    }
+
     /**
      * Remove all paths from Controller.
      */
