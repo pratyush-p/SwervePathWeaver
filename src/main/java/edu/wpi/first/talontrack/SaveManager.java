@@ -12,6 +12,7 @@ public final class SaveManager {
   private static final SaveManager INSTANCE = new SaveManager();
 
   private final Set<Path> paths = new HashSet<>();
+  private final Set<CommandInstance> insts = new HashSet<>();
 
   /**
    * Return the singleton instance of SaveManager. Tracks which files have been
@@ -92,6 +93,18 @@ public final class SaveManager {
    */
   public void removeChange(Path path) {
     paths.remove(path);
+  }
+
+  public void saveInst(CommandInstance inst) {
+    saveInst(inst, true);
+  }
+
+  public void saveInst(CommandInstance inst, boolean remove) {
+    String instDirectory = ProjectPreferences.getInstance().getDirectory() + "/Instances/";
+    InstIOUtil.export(instDirectory, inst);
+    if (remove) {
+      insts.remove(inst);
+    }
   }
 
 }

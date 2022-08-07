@@ -214,7 +214,6 @@ public class ProjectPreferences {
 			return getCommandDir(parentDirectory);
 		} else {
 			File command = new File(directory, values.getCommandDir());
-			System.out.print("obj2");
 			return getCommandDir(command);
 		}
 	}
@@ -240,7 +239,6 @@ public class ProjectPreferences {
 		if (isFRCProject(dir)) {
 			return getPullCMDDirectory(dir);
 		} else {
-			System.out.println(dir.getPath());
 			return new File(dir, "output");
 			// return getPullCMDDirectory(dir);
 		}

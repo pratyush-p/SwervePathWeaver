@@ -1,5 +1,8 @@
 package edu.wpi.first.talontrack.global;
 
+import java.util.List;
+
+import edu.wpi.first.talontrack.CommandInstance;
 import edu.wpi.first.talontrack.CommandTemplate;
 import edu.wpi.first.talontrack.Waypoint;
 import edu.wpi.first.talontrack.path.Path;
@@ -18,7 +21,9 @@ public final class CurrentSelections {
     private static SimpleObjectProperty<Waypoint> curWaypoint = new SimpleObjectProperty<>();
     private static SimpleObjectProperty<Path> curPath = new SimpleObjectProperty<>();
     private static SimpleObjectProperty<CommandTemplate> curCommandTemp = new SimpleObjectProperty<>();
+    private static SimpleObjectProperty<List<CommandTemplate>> curCommandTempArr = new SimpleObjectProperty<>();
     private static SimpleObjectProperty<ObservableList<Path>> curPathList = new SimpleObjectProperty<>();
+    private static SimpleObjectProperty<CommandInstance> curInst = new SimpleObjectProperty<>();
 
     private CurrentSelections() {
         throw new UnsupportedOperationException("This class holds global state!");
@@ -84,6 +89,18 @@ public final class CurrentSelections {
         CurrentSelections.curCommandTemp.set(curCommandTemplate);
     }
 
+    public static List<CommandTemplate> getCurCommandTemplateArr() {
+        return curCommandTempArr.get();
+    }
+
+    public static SimpleObjectProperty<List<CommandTemplate>> curCommandTemplatePropertyArr() {
+        return curCommandTempArr;
+    }
+
+    public static void setCurCommandTemplateArr(List<CommandTemplate> curCommandTemplateArr) {
+        CurrentSelections.curCommandTempArr.set(curCommandTemplateArr);
+    }
+
     public static ObservableList<Path> getCurPathlist() {
         return curPathList.get();
     }
@@ -94,6 +111,18 @@ public final class CurrentSelections {
 
     public static void setCurPathlist(ObservableList<Path> curPathlist) {
         CurrentSelections.curPathList.set(curPathlist);
+    }
+
+    public static CommandInstance getCurInst() {
+        return curInst.get();
+    }
+
+    public static SimpleObjectProperty<CommandInstance> curInstProperty() {
+        return curInst;
+    }
+
+    public static void setCurInst(CommandInstance curInst) {
+        CurrentSelections.curInst.set(curInst);
     }
 
 }

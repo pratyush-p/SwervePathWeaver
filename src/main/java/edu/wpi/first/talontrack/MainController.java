@@ -84,6 +84,7 @@ public class MainController {
   private final String autonDirectory = directory + "/Autos/";
   private final String commandDirectory = directory + "/"
       + ProjectPreferences.getInstance().getValues().getCommandDir();
+  private final String commandInstDirectory = directory + "/Instances/";
   private final String groupDirectory = directory + "/Groups/"; // Legacy dir for backwards compatibility
   private final TreeItem<String> autonRoot = new TreeItem<>("Autons");
   private final TreeItem<String> pathRoot = new TreeItem<>("Paths");
@@ -94,10 +95,12 @@ public class MainController {
 
   private TreeItem<String> selected = null;
   private TreeItem<String> selectedCommand = null;
+  private TreeItem<String> selectedInstance = null;
 
   private Field field;
 
   private List<CommandTemplate> commandTemplatesArr = new ArrayList<CommandTemplate>();
+  private List<CommandInstance> commandInstancesArr = new ArrayList<CommandInstance>();
 
   private static boolean pathBuilt = false;
 
@@ -118,7 +121,9 @@ public class MainController {
     setupTreeView(autons, autonRoot, FxUtils.menuItem("New Autonomous...", event -> createAuton()));
     setupTreeView(paths, pathRoot, FxUtils.menuItem("New Path...", event -> createPath()));
     setupTreeView(commandTemplates, commandTemplateRoot,
-        FxUtils.menuItem("New Path...", event -> System.out.print("dawd")));
+        FxUtils.menuItem("New Template...", event -> System.out.print("dawd")));
+    setupTreeView(commandInstances, commandInstanceRoot,
+        FxUtils.menuItem("New Instance...", event -> createInstance()));
 
     // Copying files from the old directory name to the new one to maintain
     // backwards compatibility
@@ -131,10 +136,12 @@ public class MainController {
     MainIOUtil.setupItemsInDirectory(pathDirectory, pathRoot);
     MainIOUtil.setupItemsInDirectory(autonDirectory, autonRoot);
     MainIOUtil.setupItemsInDirectory(commandDirectory, commandTemplateRoot);
+    MainIOUtil.setupItemsInDirectory(commandInstDirectory, commandInstanceRoot);
 
     setupClickablePaths();
     setupClickableAutons();
     setupClickableCommandTemplates();
+    setupClickableCommandInstances();
     loadAllAutons();
 
     autons.setEditable(true);
@@ -344,6 +351,24 @@ public class MainController {
     commandTemplates.getSelectionModel().selectedItemProperty().addListener(selectionListener);
   }
 
+  private void setupClickableCommandInstances() {
+    ChangeListener<TreeItem<String>> selectionListener = new ChangeListener<>() {
+      @Override
+      public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
+          TreeItem<String> newValue) {
+        selectedInstance = newValue;
+        if (newValue != commandInstanceRoot && newValue != null) {
+          for (CommandInstance comInst : commandInstancesArr) {
+            if (comInst.getName() == selectedInstance.getValue()) {
+              CurrentSelections.setCurInst(comInst);
+            }
+          }
+        }
+      }
+    };
+    commandTemplates.getSelectionModel().selectedItemProperty().addListener(selectionListener);
+  }
+
   @FXML
   private void previewJavaFile() {
     for (CommandTemplate comTemp : commandTemplatesArr) {
@@ -410,11 +435,6 @@ public class MainController {
     autons.getSelectionModel().selectedItemProperty().addListener(selectionListener);
   }
 
-  private void setupAutonFromSelection() {
-    fieldDisplayController.setPathList(CurrentSelections.getCurPathlist());
-    autonSelected = true;
-  }
-
   private boolean validPathName(String oldName, String newName) {
     return MainIOUtil.isValidRename(pathDirectory, oldName, newName);
   }
@@ -467,6 +487,18 @@ public class MainController {
     String name = MainIOUtil.getValidFileName(autonDirectory, "Unnamed", "");
     TreeItem<String> auton = MainIOUtil.addChild(autonRoot, name);
     MainIOUtil.saveAuton(autonDirectory, auton.getValue(), auton);
+  }
+
+  @FXML
+  private void createInstance() {
+    String name = MainIOUtil.getValidFileName(commandInstDirectory,
+        (CurrentSelections.getCurCommandTemplate().getName().substring(0,
+            CurrentSelections.getCurCommandTemplate().getName().length() - 5) + "Inst"),
+        ".inst");
+    MainIOUtil.addChild(commandInstanceRoot, name);
+    CommandInstance newInstance = new CommandInstance(CurrentSelections.getCurCommandTemplate(), name);
+    commandInstancesArr.add(newInstance);
+    SaveManager.getInstance().saveInst(newInstance);
   }
 
   @FXML
@@ -545,6 +577,7 @@ public class MainController {
     for (TreeItem<String> child : commandTemplateRoot.getChildren()) {
       commandTemplatesArr.add(new CommandTemplate(commandDirectory, child.getValue(), child));
     }
+    CurrentSelections.setCurCommandTemplateArr(commandTemplatesArr);
   }
 
   private void setPaneExpansions() {

@@ -15,7 +15,9 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.utils.SourceRoot;
 
 import javafx.scene.control.TreeItem;
@@ -64,7 +66,7 @@ public class CommandTemplate {
   public HashMap<String, String> getParameterMap() {
     CompilationUnit c = parse();
     int size = c.getType(0).getConstructors().get(0).getParameters().size();
-    HashMap<String, String> map = new HashMap<>(size);
+    HashMap<String, String> map = new HashMap<>(6);
     if (!(size > 6)) {
       c.getType(0).getConstructors().get(0).getParameters()
           .forEach(p -> map.put(p.getNameAsString(), p.getTypeAsString()));
@@ -73,6 +75,8 @@ public class CommandTemplate {
           .forEach(p -> map.put(p.getNameAsString(), p.getTypeAsString()));
       System.out.println("Command too dummy thicc. Have less parameters.");
     }
+
+    // System.out.println(map.toString());
 
     return map;
   }

@@ -51,7 +51,7 @@
             <VBox BorderPane.alignment="CENTER">
                <TreeView fx:id="commandTemplates" VBox.vgrow="ALWAYS" />
                <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
-                  <Button mnemonicParsing="false" text="Instantiate" />
+                  <Button mnemonicParsing="false" onAction="#createInstance" text="Instantiate" />
                   <Button mnemonicParsing="false" onAction="#previewJavaFile" text="Preview" />
                   <Button mnemonicParsing="false" onAction="#info" text="Info" />
                </ToolBar>
@@ -63,6 +63,7 @@
                <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
                   <Button mnemonicParsing="false" text="Duplicate" />
                   <Button mnemonicParsing="false" text="Remove" />
+                  <Button mnemonicParsing="false" text="Timeline" />
                </ToolBar>
             </VBox>
          </TitledPane>
