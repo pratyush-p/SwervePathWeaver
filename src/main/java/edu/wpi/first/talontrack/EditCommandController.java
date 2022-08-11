@@ -198,12 +198,6 @@ public class EditCommandController {
         .forEach(textField -> {
           textField.setOnKeyReleased(event -> {
             if (!textField.getText().equals("") && inst.getValue() != null) {
-
-              MainIOUtil.renameInst(directory, inst.getValue(),
-                  pointName.getText() + ".inst");
-              inst.getValue().setName(pointName.getText() + ".inst");
-              MainIOUtil.setupItemsInDirectory2(directory, MainController.getInstRoot());
-
               inst.getValue().setStart(Double.parseDouble(start.getText()));
               inst.getValue().setFinish(Double.parseDouble(finish.getText()));
               inst.getValue().setValMap(convertTextFieldsToList());
@@ -215,17 +209,20 @@ public class EditCommandController {
 
           textField.setOnMouseClicked(event -> {
             if (!textField.getText().equals("") && inst.getValue() != null) {
-
-              MainIOUtil.renameInst(directory, inst.getValue(),
-                  pointName.getText() + ".inst");
-              inst.getValue().setName(pointName.getText() + ".inst");
-              MainIOUtil.setupItemsInDirectory2(directory, MainController.getInstRoot());
-
               inst.getValue().setStart(Double.parseDouble(start.getText()));
               inst.getValue().setFinish(Double.parseDouble(finish.getText()));
               inst.getValue().setValMap(convertTextFieldsToList());
               SaveManager.getInstance().addChangeInst(inst.getValue());
               SaveManager.getInstance().saveInst(inst.getValue());
+            }
+          });
+
+          textField.setOnKeyPressed(event -> {
+            if (!textField.getText().equals("") && inst.getValue() != null && event.getCode().equals(KeyCode.ENTER)) {
+              MainIOUtil.renameInst(directory, inst.getValue(),
+                  pointName.getText() + ".inst");
+              inst.getValue().setName(pointName.getText() + ".inst");
+              MainIOUtil.setupItemsInDirectory2(directory, MainController.getInstRoot());
             }
           });
         });
