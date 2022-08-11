@@ -151,6 +151,14 @@ public final class FxUtils {
     return textRestriction("^\\d*\\.?\\d*$");
   }
 
+  public static TextFormatter<Object> onlyIntegerText() {
+    return textRestriction("^[0-9]*$");
+  }
+
+  public static TextFormatter<Object> onlyStringText() {
+    return textRestriction("^[a-zA-Z ]*$");
+  }
+
   private static TextFormatter<Object> textRestriction(String regex) {
     UnaryOperator<TextFormatter.Change> formatter = c -> {
       String text = c.getControlNewText();
@@ -170,16 +178,7 @@ public final class FxUtils {
    * @return True if user confirms deletion, false otherwise.
    */
   public static boolean promptDelete(String value) {
-    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-    applyDarkMode(alert);
-    alert.setTitle("Delete " + value + "?");
-    alert.setHeaderText("Delete " + value + "?");
-    alert.setContentText("Are you sure you want to delete: " + value + "?");
-    Optional<ButtonType> buttonType = alert.showAndWait();
-    if (buttonType.isPresent()) {
-      return buttonType.get().equals(ButtonType.OK);
-    }
-    return false;
+    return true;
   }
 
   public static void applyDarkMode(Alert alert) {

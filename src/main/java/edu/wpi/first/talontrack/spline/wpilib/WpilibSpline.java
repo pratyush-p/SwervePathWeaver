@@ -20,6 +20,7 @@ import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsPose2d;
 import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectory;
 import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryConfig;
 import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryGenerator;
+import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryInstance;
 import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryUtil;
 import edu.wpi.first.talontrack.path.Path;
 import edu.wpi.first.talontrack.spline.AbstractSpline;
@@ -158,6 +159,7 @@ public class WpilibSpline extends AbstractSpline {
                         st.curvatureRadPerMeter));
             }
 
+            new PratsTrajectoryInstance(traj);
             PratsTrajectoryUtil.toPathweaverJson(traj, path.resolveSibling(path.getFileName() + ".wpilib.json"));
 
             return okay.get();

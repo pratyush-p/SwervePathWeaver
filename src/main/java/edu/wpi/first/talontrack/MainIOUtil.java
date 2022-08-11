@@ -8,10 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.print.DocFlavor.STRING;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
@@ -40,6 +43,18 @@ public final class MainIOUtil {
     }
   }
 
+  public static void setupItemsInDirectory2(String directory, TreeItem<String> root) {
+    File folder = new File(directory);
+    if (!folder.exists()) {
+      folder.mkdir();
+    }
+    root.getChildren().clear();
+    String[] listOfFiles = folder.list();
+    for (String name : listOfFiles) {
+      addChild(root, name);
+    }
+  }
+
   /**
    * Checks if a file exists with filename if so appends incremental value.
    *
@@ -57,6 +72,21 @@ public final class MainIOUtil {
       file = new File(directory, nameNoVersion + "_" + num + extension);
     }
     return file.getName();
+  }
+
+  public static String getValidTreeItemName(TreeItem<String> root, String name,
+      String extension) {
+    String nameNoVersion = name.replaceFirst("_[0-9]+", "");
+    List<String> s = new ArrayList<String>();
+    root.getChildren().forEach(c -> {
+      s.add(c.getValue());
+    });
+    s.add("_");
+    String returnVal = name + extension;
+    for (int num = 0; returnVal.equalsIgnoreCase(s.get(num)); num++) {
+      returnVal = nameNoVersion + "_" + num + extension;
+    }
+    return returnVal;
   }
 
   /**
@@ -87,6 +117,23 @@ public final class MainIOUtil {
    */
   public static void rename(String directory, TreeItem<String> item, String newName) {
     File oldFile = new File(directory, item.getValue());
+    File newFile = new File(directory, newName);
+
+    if (oldFile.renameTo(newFile)) {
+      // success
+    } else if (newFile.exists()) {
+      LOGGER.log(Level.WARNING, "Could not rename "
+          + newFile.getAbsolutePath() + " already exists");
+    } else if (oldFile.exists()) {
+      LOGGER.log(Level.WARNING, "Could not rename , unknown error");
+    } else {
+      LOGGER.log(Level.WARNING, "Could not rename "
+          + oldFile.getAbsolutePath() + " doesnt exist");
+    }
+  }
+
+  public static void renameInst(String directory, CommandInstance inst, String newName) {
+    File oldFile = new File(directory, inst.getName());
     File newFile = new File(directory, newName);
 
     if (oldFile.renameTo(newFile)) {

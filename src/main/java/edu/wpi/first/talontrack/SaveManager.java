@@ -33,6 +33,14 @@ public final class SaveManager {
     return paths.contains(path);
   }
 
+  public void addChangeInst(CommandInstance Inst) {
+    insts.add(Inst);
+  }
+
+  public boolean hasChangesInst(CommandInstance Inst) {
+    return insts.contains(Inst);
+  }
+
   /**
    * Saves all changed Paths without prompts.
    */
@@ -93,6 +101,10 @@ public final class SaveManager {
    */
   public void removeChange(Path path) {
     paths.remove(path);
+  }
+
+  public void removeChangeInst(CommandInstance inst) {
+    insts.remove(inst);
   }
 
   public void saveInst(CommandInstance inst) {

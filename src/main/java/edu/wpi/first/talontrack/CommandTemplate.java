@@ -71,7 +71,7 @@ public class CommandTemplate {
       c.getType(0).getConstructors().get(0).getParameters()
           .forEach(p -> map.put(p.getNameAsString(), p.getTypeAsString()));
     } else {
-      c.getType(0).getConstructors().get(0).getParameters().subList(0, 5)
+      c.getType(0).getConstructors().get(0).getParameters().subList(0, 6)
           .forEach(p -> map.put(p.getNameAsString(), p.getTypeAsString()));
       System.out.println("Command too dummy thicc. Have less parameters.");
     }

@@ -61,8 +61,8 @@
             <VBox BorderPane.alignment="CENTER">
                <TreeView fx:id="commandInstances" VBox.vgrow="ALWAYS" />
                <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
-                  <Button mnemonicParsing="false" text="Duplicate" />
-                  <Button mnemonicParsing="false" text="Remove" />
+                  <Button mnemonicParsing="false" text="Duplicate" onAction="#dupInst" />
+                  <Button mnemonicParsing="false" text="Remove" onAction="#removeInst" />
                   <Button mnemonicParsing="false" text="Timeline" />
                </ToolBar>
             </VBox>

@@ -25,6 +25,7 @@ import javafx.geometry.Point2D;
 
 public final class InstIOUtil {
   private static final Logger LOGGER = Logger.getLogger(PathIOUtil.class.getName());
+  private static int k = 0;
 
   private InstIOUtil() {
   }
@@ -66,6 +67,7 @@ public final class InstIOUtil {
    * @return Path object saved in Path file
    */
   public static CommandInstance importInstance(String fileLocation, String fileName) {
+    k = 0;
     try (Reader reader = Files.newBufferedReader(java.nio.file.Path.of(fileLocation, fileName));
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
             .withFirstRecordAsHeader()
@@ -75,10 +77,11 @@ public final class InstIOUtil {
       double start = Double.parseDouble(rec.get("Start Time"));
       double finish = Double.parseDouble(rec.get("Finish Time"));
       String name = rec.get("Name");
+      System.out.println("Reading: " + name);
       String parentName = rec.get("Parent Name");
       CommandTemplate parent = null;
       for (CommandTemplate comTemp : CurrentSelections.getCurCommandTemplateArr()) {
-        if (parentName == comTemp.getName()) {
+        if (parentName.equals(comTemp.getName())) {
           parent = comTemp;
         }
       }
@@ -90,17 +93,17 @@ public final class InstIOUtil {
       Map<String, Object> valMap = new HashMap<>();
 
       parent.getParameterMap().forEach((a, b) -> {
-        int i = 0;
-        if (b == "String") {
-          valMap.put(a, objs.get(i).toString());
-        } else if (b == "double") {
-          valMap.put(a, Double.parseDouble(objs.get(i).toString()));
-        } else if (b == "int") {
-          valMap.put(a, Integer.parseInt(objs.get(i).toString()));
+        if (b.equals("String")) {
+          valMap.put(a, objs.get(k).toString());
+        } else if (b.equals("double")) {
+          // System.out.println(objs.get(k).toString());
+          valMap.put(a, Double.parseDouble(objs.get(k).toString()));
+        } else if (b.equals("int")) {
+          valMap.put(a, Integer.parseInt(objs.get(k).toString()));
         }
-        i++;
+        k++;
       });
-
+      k = 0;
       return new CommandInstance(parent, name, valMap, start, finish);
     } catch (IOException except) {
       LOGGER.log(Level.WARNING, "Could not read Path file", except);
