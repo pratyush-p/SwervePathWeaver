@@ -70,6 +70,7 @@ public class Waypoint {
 
 		robot = new Rectangle(values.getBumperWidth() * field.getScale(), values.getBumperLength() * field.getScale());
 		setupRobot();
+		// System.out.println(robot.getWidth());
 
 		icon = new Polygon(0.0, SIZE / 3, SIZE, 0.0, 0.0, -SIZE / 3);
 		setupIcon();

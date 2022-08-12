@@ -35,10 +35,14 @@ public class FieldDisplayController {
     private Pane topPane;
     @FXML
     private Group pathGroup;
+    @FXML
+    private Group instGroup;
 
     private Field field;
 
     private final ObservableList<Path> pathList = FXCollections.observableArrayList();
+
+    private CommandDots dots;
 
     @FXML
     private void initialize() {
@@ -74,6 +78,7 @@ public class FieldDisplayController {
 
         new DragHandler(this, drawPane); // Handler doesn't need to be kept around by this, so just do setup
 
+        dots = new CommandDots();
         setupPathListener();
     }
 
@@ -88,6 +93,30 @@ public class FieldDisplayController {
                 }
             }
         });
+    }
+
+    private void setupDotsListener() {
+        CurrentSelections.curInstProperty().addListener((observable, oldValue, newValue) -> {
+            dots.setInst(newValue);
+            instGroup.getChildren().addAll(dots.getStartCircle(), dots.getFinishCircle());
+            newValue.startProperty().addListener((observableStart, oldValueStart, newValueStart) -> {
+                dots.setInst(newValue);
+                instGroup.getChildren().addAll(dots.getStartCircle(), dots.getFinishCircle());
+            });
+            newValue.finishProperty().addListener((observableFinish, oldValueFinish, newValueFinish) -> {
+                dots.setInst(newValue);
+                instGroup.getChildren().addAll(dots.getStartCircle(), dots.getFinishCircle());
+            });
+        });
+    }
+
+    public void addDots() {
+        setupDotsListener();
+        instGroup.setVisible(true);
+    }
+
+    public void removeDots() {
+        instGroup.setVisible(false);
     }
 
     @FXML

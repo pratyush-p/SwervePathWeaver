@@ -625,6 +625,11 @@ public class MainController {
       setPaneExpansions();
       buildBtn.setText(pathBuilt ? "Build Commands" : "Build Paths");
       fieldDisplayController.getPathList().forEach(pl -> pl.getWaypoints().forEach(w -> w.setLineVisible(!pathBuilt)));
+      if (pathBuilt) {
+        fieldDisplayController.addDots();
+      } else {
+        fieldDisplayController.removeDots();
+      }
       CurrentSelections.setCurPathlist(fieldDisplayController.getPathList());
     } else if (!autonSelected && !pathBuilt) {
       Alert alert = new Alert(Alert.AlertType.INFORMATION);

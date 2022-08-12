@@ -10,6 +10,7 @@ import edu.wpi.first.talontrack.global.PathExports;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -81,8 +82,8 @@ public class EditCommandController {
     controlsStrOnly = new ArrayList<TextField>();
     pS = List.of(p1, p2, p3, p4, p5, p6);
     lS = List.of(l1, l2, l3, l4, l5, l6);
-    startListener = setUpGenericTextField(start);
-    finishListener = setUpGenericTextField(finish);
+    startListener = setUpGenericTextFieldStart(start);
+    finishListener = setUpGenericTextFieldFinish(finish);
     nameListener = setUpGenericTextFieldString(pointName);
     controlsPDoubleOnly.forEach(c -> {
       c.setTextFormatter(FxUtils.onlyPositiveDoubleText());
@@ -137,8 +138,8 @@ public class EditCommandController {
   private void setInst(CommandInstance m) {
     unFormatFields();
     controls.forEach(c -> c.setDisable(false));
-    start.setText("0.0");
-    finish.setText("1.0");
+    start.setText(String.valueOf(m.getStart()));
+    finish.setText(String.valueOf(m.getFinish()));
     i = 0;
     pointName.setText(m.getName().substring(0, m.getName().length() - 5));
     m.getMap().forEach((a, b) -> {
@@ -172,10 +173,22 @@ public class EditCommandController {
     formatFields();
   }
 
-  private ChangeListener<String> setUpGenericTextField(TextField t) {
+  private ChangeListener<String> setUpGenericTextFieldStart(TextField t) {
     ChangeListener<String> l = (observable, oldValue, newValue) -> {
       boolean validText = !("").equals(newValue);
-      if (validText && !(Double.parseDouble(t.getText()) <= PathExports.getAutonLenSeconds())) {
+      if ((validText && !(Double.parseDouble(t.getText()) <= PathExports.getAutonLenSeconds())) || (validText
+          && !(Double.parseDouble(t.getText()) <= Double.parseDouble(finish.getText())))) {
+        t.setText(oldValue);
+      }
+    };
+    return l;
+  }
+
+  private ChangeListener<String> setUpGenericTextFieldFinish(TextField t) {
+    ChangeListener<String> l = (observable, oldValue, newValue) -> {
+      boolean validText = !("").equals(newValue);
+      if (validText && !(Double.parseDouble(t.getText()) <= PathExports.getAutonLenSeconds()) || (validText
+          && !(Double.parseDouble(t.getText()) >= Double.parseDouble(start.getText())))) {
         t.setText(oldValue);
       }
     };
@@ -214,6 +227,13 @@ public class EditCommandController {
               inst.getValue().setValMap(convertTextFieldsToList());
               SaveManager.getInstance().addChangeInst(inst.getValue());
               SaveManager.getInstance().saveInst(inst.getValue());
+            }
+            if (!(pointName.getText() + ".inst").equals(inst.getValue().getName())) {
+              Alert alert = new Alert(Alert.AlertType.INFORMATION);
+              FxUtils.applyDarkMode(alert);
+              alert.setHeaderText("Click Enter");
+              alert.setContentText("Click enter to save name");
+              alert.show();
             }
           });
 
