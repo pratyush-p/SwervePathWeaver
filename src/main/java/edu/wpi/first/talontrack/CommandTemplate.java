@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +30,8 @@ public class CommandTemplate {
   private Path path;
   private File file;
   private FileReader reader;
+
+  private int i = 0;
 
   public CommandTemplate(String pathString, String name, TreeItem<String> associatedTreeItem) {
     this.pathString = pathString;
@@ -67,16 +70,39 @@ public class CommandTemplate {
     CompilationUnit c = parse();
     int size = c.getType(0).getConstructors().get(0).getParameters().size();
     HashMap<String, String> map = new HashMap<>(6);
-    if (!(size > 6)) {
-      c.getType(0).getConstructors().get(0).getParameters()
-          .forEach(p -> map.put(p.getNameAsString(), p.getTypeAsString()));
-    } else {
-      c.getType(0).getConstructors().get(0).getParameters().subList(0, 6)
-          .forEach(p -> map.put(p.getNameAsString(), p.getTypeAsString()));
-      System.out.println("Command too dummy thicc. Have less parameters.");
+
+    c.getType(0).getConstructors().get(0).getParameters()
+        .forEach(p -> {
+          if (((p.getTypeAsString().equalsIgnoreCase("double")) || (p.getTypeAsString().equalsIgnoreCase("int")) || (p
+              .getTypeAsString().equalsIgnoreCase("String"))) && !(p.getNameAsString().equalsIgnoreCase("length"))) {
+            map.put(p.getNameAsString(), p.getTypeAsString());
+          }
+        });
+
+    List<String> badStrings = new ArrayList<>();
+    if (!(map.size() <= 6)) {
+      map.forEach((a, b) -> {
+        if (i >= 6) {
+          badStrings.add(a);
+        }
+        i++;
+      });
+      i = 0;
+      badStrings.forEach(p -> {
+        map.remove(p);
+      });
     }
 
-    // System.out.println(map.toString());
+    return map;
+  }
+
+  public HashMap<String, String> getRawParameterMap() {
+    CompilationUnit c = parse();
+    HashMap<String, String> map = new HashMap<>();
+    c.getType(0).getConstructors().get(0).getParameters()
+        .forEach(p -> {
+          map.put(p.getNameAsString(), p.getTypeAsString());
+        });
 
     return map;
   }

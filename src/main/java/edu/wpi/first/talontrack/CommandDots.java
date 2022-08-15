@@ -49,10 +49,14 @@ public class CommandDots {
   }
 
   private void setupListeners() {
-    startVis.set(true);
-    finishVis.set(true);
+    startX.set(0);
+    startY.set(0);
+    startVis.set(false);
+    finishX.set(0);
+    finishY.set(0);
+    finishVis.set(false);
     for (int k = 0; k < trajs.size(); k++) {
-      if ((startTime < trajs.get(k).getFinishTime())
+      if ((startTime <= trajs.get(k).getFinishTime())
           && (startTime >= trajs.get(k).getStartTime())) {
         startX.set(trajs.get(k).getPratsTrajRaw().sample((startTime -
             trajs.get(k).getStartTime())).poseMeters.getX());
@@ -60,7 +64,7 @@ public class CommandDots {
             (startTime - trajs.get(k).getStartTime())).poseMeters.getY());
         startVis.set(true);
       }
-      if ((finishTime < trajs.get(k).getFinishTime())
+      if ((finishTime <= trajs.get(k).getFinishTime())
           && (finishTime >= trajs.get(k).getStartTime())) {
         finishX
             .set(trajs.get(k).getPratsTrajRaw().sample((finishTime -

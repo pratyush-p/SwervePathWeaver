@@ -10,13 +10,16 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.talontrack.global.CurrentSelections;
 import edu.wpi.first.talontrack.global.PathExports;
+import edu.wpi.first.talontrack.global.Timeline;
 import edu.wpi.first.talontrack.path.Path;
 import edu.wpi.first.talontrack.path.wpilib.WpilibPath;
+import javafx.application.ConditionalFeature;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -30,6 +33,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 //With the creation of a project many of these functions should be moved out of here
@@ -52,7 +56,11 @@ public class MainController {
   @FXML
   private Pane fieldDisplay;
   @FXML
+  private Pane timeline;
+  @FXML
   private FieldDisplayController fieldDisplayController;
+  @FXML
+  private TimelineController timelineController;
 
   @FXML
   private GridPane editWaypoint;
@@ -77,7 +85,17 @@ public class MainController {
   @FXML
   private TitledPane commandInstPane;
   @FXML
+  private Pane fieldTab;
+  @FXML
+  private Pane timelineTab;
+  @FXML
   private Button buildBtn;
+  @FXML
+  private Button timelineButton;
+  @FXML
+  private Button createAutonBtn;
+  @FXML
+  private Button deleteAutonBtn;
 
   private String directory = ProjectPreferences.getInstance().getDirectory();
   private final String pathDirectory = directory + "/Paths/";
@@ -90,10 +108,11 @@ public class MainController {
   private final TreeItem<String> pathRoot = new TreeItem<>("Paths");
   // private final TreeItem<String> commandRoot = new TreeItem<>("Commands");
   private final TreeItem<String> tempRoot = new TreeItem<>("Templates");
-  private static final TreeItem<String> instRoot = new TreeItem<>("Instances");
+  private final TreeItem<String> instRoot = new TreeItem<>("Instances");
 
   private String specialAlertString;
   private boolean autonSelected;
+  private boolean timelineSwitch = false;
 
   private TreeItem<String> selected = null;
   private TreeItem<String> selectedCommandTemp = null;
@@ -106,6 +125,8 @@ public class MainController {
   private List<CommandInstance> commandInstancesArr = new ArrayList<CommandInstance>();
 
   private static boolean pathBuilt = false;
+  private TreeItem<String> curInstItem = new TreeItem<>();
+  private ChangeListener<CommandInstance> timelineListener;
 
   @FXML
   private void initialize() {
@@ -117,6 +138,8 @@ public class MainController {
     pathPane.setOnMouseClicked(event -> setPaneExpansions());
     commandTempPane.setOnMouseClicked(event -> setPaneExpansions());
     commandInstPane.setOnMouseClicked(event -> setPaneExpansions());
+
+    timelineSwitch();
 
     field = ProjectPreferences.getInstance().getField();
     setupDrag();
@@ -158,16 +181,20 @@ public class MainController {
     if (pathBuilt) {
       fieldDisplayController.setPathList();
       autonSelected = true;
+      fieldDisplayController.addDots();
+      timelineController.fillTimeline();
     }
 
     importCommands();
     importInstances();
     CurrentSelections.setCurCommandTemplate(commandTemplatesArr.get(0));
 
+    editCommandController.setRoot(instRoot);
     editWaypointController.bindToWaypoint(CurrentSelections.curWaypointProperty(), fieldDisplayController);
     editCommandController.bindToCommand(CurrentSelections.curCommandTemplateProperty(), fieldDisplayController);
     buildBtn.setText(pathBuilt ? "Build Commands" : "Build Paths");
     setPathBuilt(pathBuilt);
+
   }
 
   private void setupTreeView(TreeView<String> treeView, TreeItem<String> treeRoot, MenuItem newItem) {
@@ -202,6 +229,7 @@ public class MainController {
 
   private void select(TreeView<String> t, TreeItem<String> s) {
     t.getSelectionModel().select(s);
+    timelineController.fillTimeline();
   }
 
   private void setupEditable() {
@@ -302,6 +330,9 @@ public class MainController {
     if (instRoot == root && FxUtils.promptDelete(inst.getValue())) {
       clearSelectionTreeView(commandInstances);
       select(commandTemplates, inst.getParent());
+      commandInstancesArr.remove(CurrentSelections.getCurInst());
+      Timeline.setInstList(commandInstancesArr);
+      timelineController.fillTimeline();
       SaveManager.getInstance().removeChangeInst(CurrentSelections.curInstProperty().get());
       MainIOUtil.deleteItem(commandInstDirectory, inst);
       // editCommandController.unbindToInstance(CurrentSelections.curInstProperty(),
@@ -332,6 +363,7 @@ public class MainController {
     } else {
       return;
     }
+    createAutonBtn.setDisable(false);
   }
 
   @FXML
@@ -422,6 +454,7 @@ public class MainController {
       @Override
       public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
           TreeItem<String> newValue) {
+        timelineController.fillTimeline();
         selectedInstance = newValue;
         if (newValue != instRoot && newValue != null) {
           for (CommandInstance comInst : commandInstancesArr) {
@@ -429,14 +462,11 @@ public class MainController {
               CurrentSelections.setCurInst(comInst);
             }
           }
-          // if (selectedCommandTemp != null) {
-          // editCommandController.unbindToCommand(CurrentSelections.curCommandTemplateProperty(),
-          // fieldDisplayController);
-          // }
           editCommandController.bindToInstance(CurrentSelections.curInstProperty(), fieldDisplayController);
         }
         clearSelectionTreeView(commandTemplates);
         select(commandInstances, newValue);
+        fieldDisplayController.addDots();
       }
     };
     commandInstances.getSelectionModel().selectedItemProperty().addListener(selectionListener);
@@ -571,6 +601,7 @@ public class MainController {
     String name = MainIOUtil.getValidFileName(autonDirectory, "Unnamed", "");
     TreeItem<String> auton = MainIOUtil.addChild(autonRoot, name);
     MainIOUtil.saveAuton(autonDirectory, auton.getValue(), auton);
+    createAutonBtn.setDisable(true);
   }
 
   @FXML
@@ -593,6 +624,8 @@ public class MainController {
         if (!SaveManager.getInstance().promptSaveAll()) {
           return;
         }
+
+        PathExports.clearTrajs();
 
         java.nio.file.Path output = ProjectPreferences.getInstance().getOutputDir().toPath();
         try {
@@ -630,7 +663,10 @@ public class MainController {
       } else {
         fieldDisplayController.removeDots();
       }
+      Timeline.create(commandTemplatesArr, commandInstancesArr);
       CurrentSelections.setCurPathlist(fieldDisplayController.getPathList());
+      timelineSwitch();
+      timelineController.fillTimeline();
     } else if (!autonSelected && !pathBuilt) {
       Alert alert = new Alert(Alert.AlertType.INFORMATION);
       FxUtils.applyDarkMode(alert);
@@ -642,8 +678,46 @@ public class MainController {
 
   }
 
+  private void setupInstanceSelectionListener() {
+    timelineListener = new ChangeListener<CommandInstance>() {
+      @Override
+      public void changed(ObservableValue<? extends CommandInstance> observable, CommandInstance oldValue,
+          CommandInstance newValue) {
+        instRoot.getChildren().forEach(c -> {
+          if (c.getValue().equalsIgnoreCase(newValue.getName())) {
+            curInstItem = c;
+          }
+        });
+        timelineController.fillTimeline();
+        selectedInstance = curInstItem;
+        if (curInstItem != instRoot && curInstItem != null) {
+          for (CommandInstance comInst : commandInstancesArr) {
+            if (comInst.getName().equals(selectedInstance.getValue())) {
+              CurrentSelections.setCurInst(comInst);
+            }
+          }
+          editCommandController.bindToInstance(CurrentSelections.curInstProperty(), fieldDisplayController);
+        }
+        clearSelectionTreeView(commandTemplates);
+        select(commandInstances, curInstItem);
+        fieldDisplayController.addDots();
+      }
+    };
+    CurrentSelections.curInstProperty().addListener(timelineListener);
+  }
+
+  private void removeInstanceSelectionListener() {
+    CurrentSelections.curInstProperty().removeListener(timelineListener);
+  }
+
   @FXML
   private void editProject() {
+    if (timelineSwitch) {
+      timelineSwitch();
+      removeInstanceSelectionListener();
+      timelineSwitch = !timelineSwitch;
+    }
+
     try {
       Pane root = FXMLLoader.load(getClass().getResource("createProject.fxml"));
       Scene scene = fieldDisplay.getScene();
@@ -655,6 +729,18 @@ public class MainController {
     } catch (IOException e) {
       LOGGER.log(Level.WARNING, "Couldn't load create project screen", e);
     }
+  }
+
+  @FXML
+  private void timelineToggle() {
+    if (timelineSwitch) {
+      timelineSwitch();
+      removeInstanceSelectionListener();
+    } else {
+      timelineSwitch2();
+      setupInstanceSelectionListener();
+    }
+    timelineSwitch = !timelineSwitch;
   }
 
   public void setDirectory(String directory) {
@@ -671,8 +757,6 @@ public class MainController {
   private void importInstances() {
     for (TreeItem<String> child : instRoot.getChildren()) {
       commandInstancesArr.add(InstIOUtil.importInstance(commandInstDirectory, child.getValue()));
-      commandInstancesArr.forEach((a) -> {
-      });
     }
   }
 
@@ -693,7 +777,17 @@ public class MainController {
     pathBuilt = b;
   }
 
-  public static TreeItem<String> getInstRoot() {
-    return instRoot;
+  private void timelineSwitch() {
+    fieldDisplayController.addDots();
+    timeline.setVisible(false);
+    fieldDisplay.setVisible(true);
+    timelineButton.setText("See Timeline");
+  }
+
+  private void timelineSwitch2() {
+    timelineController.fillTimeline();
+    timeline.setVisible(true);
+    fieldDisplay.setVisible(false);
+    timelineButton.setText("See Field");
   }
 }

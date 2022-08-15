@@ -6,12 +6,14 @@ public class PratsTrajectoryInstance {
 
   double startTime;
   double finishTime;
+  String name;
   PratsTrajectory traj;
 
-  public PratsTrajectoryInstance(PratsTrajectory traj) {
+  public PratsTrajectoryInstance(PratsTrajectory traj, String name) {
     this.traj = traj;
     this.startTime = 0.0;
     this.finishTime = startTime + traj.getTotalTimeSeconds();
+    this.name = name;
     PathExports.addTrajectory(this);
   }
 
@@ -33,5 +35,9 @@ public class PratsTrajectoryInstance {
 
   public PratsTrajectory getPratsTrajRaw() {
     return traj;
+  }
+
+  public String getName() {
+    return name;
   }
 }

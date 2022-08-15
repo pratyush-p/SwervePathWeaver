@@ -6,12 +6,21 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="360.0" minWidth="640.0" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.wpi.first.talontrack.MainController">
    <center>
       <BorderPane BorderPane.alignment="CENTER">
          <center>
-            <fx:include fx:id="fieldDisplay" source="fieldDisplay.fxml" />
+            <StackPane BorderPane.alignment="CENTER">
+               <fx:include fx:id="fieldDisplay" source="fieldDisplay.fxml" />
+               <fx:include fx:id="timeline" source="timeline.fxml" />
+            </StackPane>
          </center>
          <bottom>
             <VBox BorderPane.alignment="CENTER">
@@ -32,8 +41,8 @@
                <TreeView fx:id="autons" VBox.vgrow="ALWAYS" />
                <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
                   <items>
-                     <Button mnemonicParsing="false" onAction="#createAuton" text="+" />
-                     <Button mnemonicParsing="false" onAction="#deleteAuton" text="-" />
+                     <Button mnemonicParsing="false" onAction="#createAuton" text="+" fx:id="createAutonBtn" />
+                     <Button mnemonicParsing="false" onAction="#deleteAuton" text="-" fx:id="deleteAutonBtn" />
                   </items>
                </ToolBar>
             </VBox>
@@ -63,7 +72,7 @@
                <ToolBar prefHeight="30.0" VBox.vgrow="NEVER">
                   <Button mnemonicParsing="false" text="Duplicate" onAction="#dupInst" />
                   <Button mnemonicParsing="false" text="Remove" onAction="#removeInst" />
-                  <Button mnemonicParsing="false" text="Timeline" />
+                  <Button mnemonicParsing="false" text="Timeline" onAction="#timelineToggle" fx:id="timelineButton" />
                </ToolBar>
             </VBox>
          </TitledPane>

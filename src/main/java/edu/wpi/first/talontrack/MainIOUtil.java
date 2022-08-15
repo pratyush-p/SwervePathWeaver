@@ -37,6 +37,7 @@ public final class MainIOUtil {
     if (!folder.exists()) {
       folder.mkdir();
     }
+    root.getChildren().clear();
     String[] listOfFiles = folder.list();
     for (String name : listOfFiles) {
       addChild(root, name);

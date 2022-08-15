@@ -14,6 +14,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyCode;
 
 public class EditCommandController {
@@ -71,6 +72,7 @@ public class EditCommandController {
     setInst(newValue);
   };
   ChangeListener<String> startListener, finishListener, nameListener;
+  TreeItem<String> root = new TreeItem<>();
 
   @FXML
   private void initialize() {
@@ -88,6 +90,10 @@ public class EditCommandController {
     controlsPDoubleOnly.forEach(c -> {
       c.setTextFormatter(FxUtils.onlyPositiveDoubleText());
     });
+  }
+
+  public void setRoot(TreeItem<String> s) {
+    root = s;
   }
 
   public void bindToCommand(ObservableValue<CommandTemplate> comTemp, FieldDisplayController controller) {
@@ -242,7 +248,7 @@ public class EditCommandController {
               MainIOUtil.renameInst(directory, inst.getValue(),
                   pointName.getText() + ".inst");
               inst.getValue().setName(pointName.getText() + ".inst");
-              MainIOUtil.setupItemsInDirectory2(directory, MainController.getInstRoot());
+              MainIOUtil.setupItemsInDirectory2(directory, root);
             }
           });
         });

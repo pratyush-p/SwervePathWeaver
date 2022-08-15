@@ -159,7 +159,7 @@ public class WpilibSpline extends AbstractSpline {
                         st.curvatureRadPerMeter));
             }
 
-            new PratsTrajectoryInstance(traj);
+            new PratsTrajectoryInstance(traj, (path.getFileName().toString() + ".wpilib.json"));
             PratsTrajectoryUtil.toPathweaverJson(traj, path.resolveSibling(path.getFileName() + ".wpilib.json"));
 
             return okay.get();

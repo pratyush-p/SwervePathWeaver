@@ -20,6 +20,9 @@ public class PathExports {
       }
 
     }
+    // trajs.forEach(t -> {
+    // System.out.println(t.getStartTime() + "\n" + t.getFinishTime());
+    // });
   }
 
   public static void addTrajectory(PratsTrajectoryInstance t) {
@@ -31,10 +34,14 @@ public class PathExports {
   }
 
   public static double getAutonLenSeconds() {
-    return trajs.get(trajs.size() - 1).getFinishTime();
+    return 15;
   }
 
   public static double getTimeLeft() {
     return 15.0 - getAutonLenSeconds();
+  }
+
+  public static void clearTrajs() {
+    trajs.clear();
   }
 }
