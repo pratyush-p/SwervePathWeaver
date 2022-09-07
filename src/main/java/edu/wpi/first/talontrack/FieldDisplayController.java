@@ -116,7 +116,9 @@ public class FieldDisplayController {
     }
 
     public void removeDots() {
+        // System.out.println(instGroup.isVisible());
         instGroup.setVisible(false);
+        // System.out.println(instGroup.isVisible());
     }
 
     @FXML

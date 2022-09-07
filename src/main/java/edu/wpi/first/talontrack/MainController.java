@@ -778,7 +778,9 @@ public class MainController {
   }
 
   private void timelineSwitch() {
-    fieldDisplayController.addDots();
+    if (pathBuilt) {
+      fieldDisplayController.addDots();
+    }
     timeline.setVisible(false);
     fieldDisplay.setVisible(true);
     timelineButton.setText("See Timeline");
