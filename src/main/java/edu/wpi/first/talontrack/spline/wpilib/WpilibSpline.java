@@ -16,12 +16,7 @@ import edu.wpi.first.talontrack.FxUtils;
 import edu.wpi.first.talontrack.PathUnits;
 import edu.wpi.first.talontrack.ProjectPreferences;
 import edu.wpi.first.talontrack.Waypoint;
-import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsPose2d;
-import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectory;
-import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryConfig;
-import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryGenerator;
 import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryInstance;
-import edu.wpi.first.talontrack.PratsTrajectoryStuff.PratsTrajectoryUtil;
 import edu.wpi.first.talontrack.path.Path;
 import edu.wpi.first.talontrack.spline.AbstractSpline;
 import edu.wpi.first.talontrack.spline.SplineSegment;
@@ -145,22 +140,22 @@ public class WpilibSpline extends AbstractSpline {
                 wheelBase = converter.convert(wheelBase);
             }
 
-            PratsTrajectoryConfig config = new PratsTrajectoryConfig(maxVelocity, maxAcceleration)
+            TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration)
                     .setKinematics(swerveKine)
                     .setReversed(waypoints.get(0).isReversed());
-            PratsTrajectory traj = trajectoryFromWaypoints(waypoints, config);
+            Trajectory traj = trajectoryFromWaypoints(waypoints, config);
 
             for (int i = 0; i < traj.getStates().size(); ++i) {
                 var st = traj.getStates().get(i);
-                traj.getStates().set(i, new PratsTrajectory.State(
+                traj.getStates().set(i, new Trajectory.State(
                         st.timeSeconds, st.velocityMetersPerSecond, st.accelerationMetersPerSecondSq,
-                        new PratsPose2d(st.poseMeters.getX(), st.poseMeters.getY() + height,
-                                st.poseMeters.getRotation(), st.poseMeters.getTangent()),
+                        new Pose2d(st.poseMeters.getX(), st.poseMeters.getY() + height,
+                                st.poseMeters.getRotation()),
                         st.curvatureRadPerMeter));
             }
 
             new PratsTrajectoryInstance(traj, (path.getFileName().toString() + ".wpilib.json"));
-            PratsTrajectoryUtil.toPathweaverJson(traj, path.resolveSibling(path.getFileName() + ".wpilib.json"));
+            TrajectoryUtil.toPathweaverJson(traj, path.resolveSibling(path.getFileName() + ".wpilib.json"));
 
             return okay.get();
         } catch (IOException except) {
@@ -187,38 +182,32 @@ public class WpilibSpline extends AbstractSpline {
         return splines;
     }
 
-    private static PratsTrajectory trajectoryFromWaypoints(Iterable<Waypoint> waypoints, PratsTrajectoryConfig config) {
+    private static Trajectory trajectoryFromWaypoints(Iterable<Waypoint> waypoints, TrajectoryConfig config) {
         ProjectPreferences.Values prefs = ProjectPreferences.getInstance().getValues();
 
-        List<PratsPose2d> poseList = new ArrayList<PratsPose2d>();
+        List<Pose2d> poseList = new ArrayList<Pose2d>();
 
         for (Waypoint wp : waypoints) {
             if (prefs.getExportUnit() == ProjectPreferences.ExportUnit.METER) {
                 UnitConverter converter = prefs.getLengthUnit().getConverterTo(PathUnits.METER);
                 poseList.add(
-                        new PratsPose2d(
+                        new Pose2d(
                                 converter.convert(wp.getX()),
                                 converter.convert(wp.getY()),
-                                new Rotation2d(
-                                        converter.convert(wp.getHeadingX()),
-                                        converter.convert(wp.getHeadingY())),
                                 new Rotation2d(
                                         converter.convert(wp.getTangentX()),
                                         converter.convert(wp.getTangentY()))));
             } else {
                 poseList.add(
-                        new PratsPose2d(
+                        new Pose2d(
                                 wp.getX(),
                                 wp.getY(),
-                                new Rotation2d(
-                                        wp.getHeadingX(),
-                                        wp.getHeadingY()),
                                 new Rotation2d(
                                         wp.getTangentX(),
                                         wp.getTangentY())));
             }
         }
         // return TrajectoryGenerator.generateTrajectory();
-        return PratsTrajectoryGenerator.generateTrajectory(poseList, config);
+        return TrajectoryGenerator.generateTrajectory(poseList, config);
     }
 }

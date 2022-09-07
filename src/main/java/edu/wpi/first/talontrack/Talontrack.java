@@ -25,7 +25,7 @@ public class Talontrack extends Application {
     ExtensionManager.getInstance().refresh();
     Pane root = FXMLLoader.load(getClass().getResource("welcomeScreen.fxml"));
     this.mainScene = new Scene(root);
-    primaryStage.setTitle("Talon Track 5427 - The Auton Tool For Swerves");
+    primaryStage.setTitle("Talon Track 5427 - Differential Drive");
     // Work around dialog bug
     // See
     // https://stackoverflow.com/questions/55190380/javafx-creates-alert-dialog-which-is-too-small
@@ -47,7 +47,7 @@ public class Talontrack extends Application {
   public static String getVersion() {
     String version = Talontrack.class.getPackage().getImplementationVersion();
     if (version == null) {
-      return "Development";
+      return "Your mom.";
     }
     return version;
   }

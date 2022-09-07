@@ -89,9 +89,11 @@ public class Waypoint {
 		headingLine.startXProperty().bind(x);
 		headingLine.startYProperty().bind(y.negate());
 		setHeading(headingVector);
-		headingLine.endXProperty().bind(Bindings.createObjectBinding(() -> getHeadingX() + getX(), headingX, x));
-		headingLine.endYProperty().bind(Bindings.createObjectBinding(() -> -getHeadingY() + -getY(), headingY, y));
+		headingLine.endXProperty().bind(x);
+		headingLine.endYProperty().bind(y.negate());
 		headingLine.setSmooth(true);
+		headingLine.setVisible(false);
+		headingLine.setStrokeWidth(0);
 
 	}
 
@@ -111,8 +113,8 @@ public class Waypoint {
 		FxUtils.applySubchildClasses(this.icon);
 		this.icon.rotateProperty()
 				.bind(Bindings.createObjectBinding(
-						() -> getHeading() == null ? 0.0 : Math.toDegrees(Math.atan2(-getHeadingY(), getHeadingX())),
-						headingX, headingY));
+						() -> getTangent() == null ? 0.0 : Math.toDegrees(Math.atan2(-getTangentY(), getTangentX())),
+						tangentX, tangentY));
 		icon.getStyleClass().add("waypoint");
 	}
 
@@ -125,8 +127,8 @@ public class Waypoint {
 		FxUtils.applySubchildClasses(this.robot);
 		this.robot.rotateProperty()
 				.bind(Bindings.createObjectBinding(
-						() -> getHeading() == null ? 0.0 : Math.toDegrees(Math.atan2(-getHeadingY(), getHeadingX())),
-						headingX, headingY));
+						() -> getTangent() == null ? 0.0 : Math.toDegrees(Math.atan2(-getTangentY(), getTangentX())),
+						tangentX, tangentY));
 		robot.getStyleClass().add("robot");
 		robot.setSmooth(true);
 		robot.setStrokeLineJoin(StrokeLineJoin.ROUND);

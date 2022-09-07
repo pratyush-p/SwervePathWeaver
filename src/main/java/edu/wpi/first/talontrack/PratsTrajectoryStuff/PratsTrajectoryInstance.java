@@ -1,5 +1,6 @@
 package edu.wpi.first.talontrack.PratsTrajectoryStuff;
 
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.talontrack.global.PathExports;
 
 public class PratsTrajectoryInstance {
@@ -7,9 +8,9 @@ public class PratsTrajectoryInstance {
   double startTime;
   double finishTime;
   String name;
-  PratsTrajectory traj;
+  Trajectory traj;
 
-  public PratsTrajectoryInstance(PratsTrajectory traj, String name) {
+  public PratsTrajectoryInstance(Trajectory traj, String name) {
     this.traj = traj;
     this.startTime = 0.0;
     this.finishTime = startTime + traj.getTotalTimeSeconds();
@@ -33,7 +34,7 @@ public class PratsTrajectoryInstance {
     this.finishTime = finishTime;
   }
 
-  public PratsTrajectory getPratsTrajRaw() {
+  public Trajectory getPratsTrajRaw() {
     return traj;
   }
 

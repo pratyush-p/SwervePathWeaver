@@ -198,16 +198,6 @@ public class WpilibPath extends Path {
                         event -> waypoint.getTangentLine().setVisible(true)));
             }
 
-            if (waypoint.getHeadingLine().isVisible()) {
-                menu.getItems().add(FxUtils.menuItem("Hide heading",
-                        event -> waypoint.getHeadingLine().setVisible(false)));
-            } else {
-                menu.getItems().add(FxUtils.menuItem("Show heading",
-                        event -> waypoint.getHeadingLine().setVisible(true)));
-            }
-
-            menu.getItems().add(FxUtils.menuItem("Reverse Vector",
-                    event -> waypoint.setReversed(!waypoint.isReversed())));
             menu.show(mainGroup.getScene().getWindow(), e.getScreenX(), e.getScreenY());
         });
 
@@ -216,7 +206,7 @@ public class WpilibPath extends Path {
         waypoint.getRobot().setScaleX(DEFAULT_CIRCLE_SCALE / field.getScale());
         waypoint.getRobot().setScaleY(DEFAULT_CIRCLE_SCALE / field.getScale());
         waypoint.getTangentLine().setStrokeWidth(DEFAULT_LINE_SCALE / field.getScale());
-        waypoint.getHeadingLine().setStrokeWidth(DEFAULT_LINE_SCALE / field.getScale());
+        waypoint.getHeadingLine().setStrokeWidth(0);
     }
 
     /**
