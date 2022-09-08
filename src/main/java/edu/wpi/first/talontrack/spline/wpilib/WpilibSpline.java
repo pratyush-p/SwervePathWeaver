@@ -123,11 +123,7 @@ public class WpilibSpline extends AbstractSpline {
             var maxAcceleration = values.getMaxAcceleration();
             var trackWidth = values.getTrackWidth();
             var wheelBase = values.getWheelBase();
-            SwerveDriveKinematics swerveKine = new SwerveDriveKinematics(
-                    new Translation2d(wheelBase / 2, -trackWidth / 2),
-                    new Translation2d(wheelBase / 2, trackWidth / 2),
-                    new Translation2d(-wheelBase / 2, -trackWidth / 2),
-                    new Translation2d(-wheelBase / 2, trackWidth / 2));
+            DifferentialDriveKinematics diffKine = new DifferentialDriveKinematics(trackWidth);
 
             // If the export type is different (i.e. meters), then we have to convert it.
             // Otherwise we are good.
@@ -141,7 +137,7 @@ public class WpilibSpline extends AbstractSpline {
             }
 
             TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration)
-                    .setKinematics(swerveKine)
+                    .setKinematics(diffKine)
                     .setReversed(waypoints.get(0).isReversed());
             Trajectory traj = trajectoryFromWaypoints(waypoints, config);
 
