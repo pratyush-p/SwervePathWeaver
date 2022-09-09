@@ -15,6 +15,7 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
 
 import javax.measure.Unit;
+import javax.measure.UnitConverter;
 import javax.measure.quantity.Length;
 
 /**
@@ -67,8 +68,9 @@ public class Waypoint {
 
 		field = ProjectPreferences.getInstance().getField();
 		var values = ProjectPreferences.getInstance().getValues();
+		UnitConverter converter = field.getUnit().getConverterTo(PathUnits.METER);
 
-		robot = new Rectangle(values.getBumperWidth() * field.getScale(), values.getBumperLength() * field.getScale());
+		robot = new Rectangle(values.getBumperLength() * field.getScale(), values.getBumperWidth() * field.getScale());
 		setupRobot();
 		// System.out.println(robot.getWidth());
 
