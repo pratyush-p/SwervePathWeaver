@@ -67,8 +67,10 @@ public class Waypoint {
 
 		field = ProjectPreferences.getInstance().getField();
 		var values = ProjectPreferences.getInstance().getValues();
+		double bumperConst = 1.3345;
 
-		robot = new Rectangle(values.getBumperLength() * field.getScale(), values.getBumperWidth() * field.getScale());
+		robot = new Rectangle(values.getBumperLength() * field.getScale() * bumperConst, values.getBumperWidth() * field.getScale() * bumperConst);
+		System.out.println(values.getBumperLength());
 		setupRobot();
 		// System.out.println(robot.getWidth());
 
